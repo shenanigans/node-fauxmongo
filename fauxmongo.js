@@ -418,6 +418,7 @@ var ARR_SORT_PRIORITY = [
 var SORT_PRIORITY = {};
 for (var i in ARR_SORT_PRIORITY) SORT_PRIORITY[ARR_SORT_PRIORITY[i]] = i;
 function getLeafsort (sspec) {
+    sspec *= -1;
     function leafsort (able, baker) {
         if (able === baker) return 0;
         var aType = getTypeStr (able);
@@ -436,7 +437,7 @@ function getLeafsort (sspec) {
             var bKeys = Object.keys (baker)[0];
             for (var i in bKeys) {
                 if (aKeys[i] == bKeys[i]) { // recurse
-                    var comp = leafsort (able[aFirstKey], baker[bFirstKey]);
+                    var comp = leafsort (able[aKeys[i]], baker[aKeys[i]]);
                     if (comp) return comp;
                 } else if (bKeys[i] > aKeys[i])
                     return sspec;
@@ -500,7 +501,7 @@ function getLeafsort (sspec) {
     return leafsort;
 }
 
-function getDeepsort (sspec) {
+function getDocsort (sspec) {
     var leafsort = getLeafsort (1);
     var specPaths = [];
     var specFullpaths = Object.keys (sspec);
@@ -508,7 +509,7 @@ function getDeepsort (sspec) {
         if (key.match (/\$/))
             throw new Error ('invalid sort path '+key);
         else
-            specPaths.push (sspec[key].split ('.'));
+            specPaths.push (key.split ('.'));
 
     return function (able, baker) {
         for (var i in specPaths) {
@@ -677,7 +678,8 @@ var STUBBORN_OPS = {
 };
 
 function resolveDollar (target, query, path) {
-
+    // scan the target for paths that begin with the supplied path.
+    // there can be more than one, but
 }
 
 function update (query, target, change) {
