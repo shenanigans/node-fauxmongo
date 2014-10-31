@@ -1,0 +1,20 @@
+{
+  "name": "fauxmongo",
+  "version": "0.0.1",
+  "description": "Local applicator for MongoDB Update operations.",
+  "keywords": [
+    "mongodb",
+    "local",
+    "memory",
+    "in-memory",
+    "orm",
+    "model"
+  ],
+  "homepage": "https://github.com/shenanigans/fauxmongo",
+  "bugs": "https://github.com/shenanigans/fauxmongo/issues",
+  "license": "MIT",
+  "author": "Kevin \"Schmidty\" Smith",
+  "main": "fauxmongo.js",
+  "repository": "https://github.com/shenanigans/fauxmongo.git",
+  "dependencies": {}
+}
