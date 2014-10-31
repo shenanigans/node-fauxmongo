@@ -213,7 +213,7 @@ function matchQuery (doc, query) {
             if (frag[0] == '$') // operator in middle of path
                 throw new Error ('invalid path '+path);
 
-            if (!Object.hasOwnProperty (pointer, frag)) {
+            if (!Object.hasOwnProperty.call (pointer, frag)) {
                 ok = false;
                 break;
             }
@@ -242,6 +242,13 @@ function matchQuery (doc, query) {
         if (pointerType != 'object' && pointerType != 'array')
             throw new Error ('Encountered a leaf in the middle of the path '+path);
 
+        if (subtype != 'object' || !moreDollars (subquery))
+            if (matchLeaves (pointer[frag], subquery))
+                continue;
+            else
+                return false;
+
+        // $operator-laden subquery
         for (var op in subquery) {
             // apply the operator
             if (op == '$exists') // we know it does
@@ -677,9 +684,31 @@ var STUBBORN_OPS = {
     '$pushAll':     true
 };
 
-function resolveDollar (target, query, path) {
+function resolveDollar (target, query, path, pathstr) {
     // scan the target for paths that begin with the supplied path.
-    // there can be more than one, but
+    // there can be more than one - the last path that matches an element sets the dollarsign op
+    // first, walk the target to the array in question
+    var pointer = target;
+    for (var i in path)
+        pointer = pointer[path[i]];
+    if (!pointer.length) return -1;
+
+    var pslen = pathstr.length;
+    var dollar = -1;
+    for (var qpath in query) {
+        if (qpath.slice (0, pslen) != pathstr)
+            continue;
+        subquery = query[qpath];
+        var dummyQuery = {};
+        dummyQuery[qpath.slice (pslen+1)] = subquery;
+        for (var i in pointer)
+            if (matchQuery (pointer[i], dummyQuery)) {
+                dollar = i;
+                break;
+            }
+    }
+
+    return dollar;
 }
 
 function update (query, target, change) {
@@ -704,8 +733,8 @@ function update (query, target, change) {
         if (op == '$rename' || op == '$isolated') continue;
 
         var stubborn = STUBBORN_OPS.hasOwnProperty (op); // whether to infill missing props
-        var writing = false; // whether CURRENTLY infilling missing props
         for (var path in job) {
+            var writing = false; // whether CURRENTLY infilling missing props
             var frags = path.split ('.');
             var pointer = target;
             var pointerType = 'object';
@@ -719,6 +748,10 @@ function update (query, target, change) {
 
                 // dollar operator handling
                 if (frag == '$') {
+                    if (writing) { // if the key doesn't exist, the positional operator is useless
+                        ok = false;
+                        break;
+                    }
                     if (pointerType != 'array')
                         throw new Error (
                             'Found a non-Array ('
@@ -738,17 +771,9 @@ function update (query, target, change) {
                         );
                     dollarTarget = newDollar;
                     dollarTargetStr = newDollarStr;
-                    frag = resolveDollar (target, query, dollarTarget);
-                    if (writing)
-                        pointer[frag] = [];
-                    else if (!Object.hasOwnProperty (pointer, frag))
-                        if (!stubborn) {
-                            ok = false;
-                            break;
-                        } else {
-                            writing = true;
-                            pointer[frag] = [];
-                        }
+                    frag = resolveDollar (target, query, dollarTarget, dollarTargetStr);
+                    if (frag < 0) continue;
+
                     pointer = pointer[frag];
                     pointerType = 'array';
                     continue;
@@ -760,7 +785,7 @@ function update (query, target, change) {
                     pointer[frag] = {};
                     continue;
                 }
-                if (Object.hasOwnProperty (pointer, frag)) {
+                if (Object.hasOwnProperty.call (pointer, frag)) {
                     pointer = pointer[frag];
                     pointerType = getTypeStr (pointer); // the business end of pointerType logic
                     continue;
@@ -782,6 +807,8 @@ function update (query, target, change) {
             var frag = frags[frags.length-1];
             // handle the $ operator
             if (frag == '$') {
+                if (writing) // if the key is missing, the positional operator is useless
+                    continue;
                 if (pointerType != 'array')
                     throw new Error (
                         'Found a non-Array ('
@@ -798,7 +825,8 @@ function update (query, target, change) {
                     );
                 dollarTarget = newDollar;
                 dollarTargetStr = newDollarStr;
-                frag = resolveDollar (target, query, dollarTarget);
+                frag = resolveDollar (target, query, dollarTarget, dollarTargetStr);
+                if (frag < 0) continue;
             } else if (frag[0] == '$')
                 throw new Error ('invalid path '+path);
 
