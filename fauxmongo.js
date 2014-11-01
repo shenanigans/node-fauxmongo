@@ -45,6 +45,8 @@ function moreDollars (level, isArray) {
 }
 
 /**     @property/Function matchLeaves
+    @development
+    @private
 
 @argument/Object|Array|Number|String|Buffer|Boolean|Date|RegExp|undefined able
 @argument/Object|Array|Number|String|Buffer|Boolean|Date|RegExp|undefined baker
@@ -71,8 +73,30 @@ function matchLeaves (able, baker) {
     } else return false;
 }
 
-/**     @property/Object QFIELD_OPS
+/**     @property/json LOOKUP_BSON_TYPE
+    @development
+    @private
+    Convert a BSON type number to a recognizable javascript type string.
+*/
+var LOOKUP_BSON_TYPE = {
+    1:  'number',
+    2:  'string',
+    3:  'object',
+    4:  'array',
+    5:  'buffer',
+    6:  'undefined',
+    8:  'boolean',
+    9:  'date',
+    10: 'null',
+    11: 'regexp',
+    13: 'function',
+    16: 'number',
+    18: 'number'
+};
 
+/**     @property/Object QFIELD_OPS
+    @development
+    @private
 */
 var QFIELD_OPS = {
     '$gt':          function $gt (pointer, path, query) {
@@ -159,7 +183,11 @@ var QFIELD_OPS = {
         return val.match (query) ? true : false;
     },
     '$type':        function $type (pointer, path, query) {
-
+        if (getTypeStr (query) != 'number')
+            throw new Error ('$type requires a BSON type integer');
+        if (!LOOKUP_BSON_TYPE.hasOwnProperty (query))
+            return false;
+        return getTypeStr (pointer[path]) == LOOKUP_BSON_TYPE[query];
     },
     '$where':       function $where (pointer, path, query) {
         if (typeof query != 'function')
@@ -841,4 +869,62 @@ function update (query, target, change) {
 }
 
 module.exports.update = update;
-module.exports.testQuery = matchQuery;
+module.exports.matchQuery = matchQuery;
+module.exports.matchRawQuery = matchRawQuery;
+
+/**     @enum BSON_TYPES
+
+@named DOUBLE
+@named STRING
+@named OBJECT
+@named ARRAY
+@named BUFFER
+@named UNDEFINED
+@named OBJECT_ID
+@named BOOLEAN
+@named DATE
+@named NULL
+@named REGEXP
+@named FUNCTION
+@named INTEGER
+@named LONG
+@named BSON_TYPES
+*/
+var BSON_TYPES = {};
+module.exports.DOUBLE     = BSON_TYPES['double']      = 1;
+module.exports.STRING     = BSON_TYPES['string']      = 2;
+module.exports.OBJECT     = BSON_TYPES['object']      = 3;
+module.exports.ARRAY      = BSON_TYPES['array']       = 4;
+module.exports.BUFFER     = BSON_TYPES['buffer']      = 5;
+module.exports.UNDEFINED  = BSON_TYPES['undefined']   = 6;
+module.exports.OBJECT_ID                              = 7;
+module.exports.BOOLEAN    = BSON_TYPES['boolean']     = 8;
+module.exports.DATE       = BSON_TYPES['date']        = 9;
+module.exports.NULL       = BSON_TYPES['null']        = 10;
+module.exports.REGEXP     = BSON_TYPES['regexp']      = 11;
+module.exports.FUNCTION   = BSON_TYPES['function']    = 13;
+module.exports.INTEGER    = BSON_TYPES['integer']     = 16;
+module.exports.LONG       = BSON_TYPES['long']        = 18;
+module.exports.BSON_TYPES = BSON_TYPES;
+
+/**     @property/Function getBSONType
+
+@argument/Object obj
+@argument/Boolean simpleNums
+    @optional
+    In simpleNums mode, a [Number]() is always of [DOUBLE](.DOUBLE) type.
+@returns Number
+    Note that `0` signals that the type could not be found. `0` is not a valid BSON type.
+*/
+module.exports.getBSONType = function (obj, simpleNums) {
+    var type = getTypeStr (obj);
+    if (type == 'number') {
+        if (simpleNums) return 1;
+        if (Math.round (obj) == obj)
+            return 16;
+        return 1;
+    }
+    if (!BSON_TYPES.hasOwnProperty (type))
+        return 0;
+    return BSON_TYPES[type];
+};
