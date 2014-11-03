@@ -1,16 +1,24 @@
 
-/**     @module/Function fauxmongo
-
-@argument/Object query
-    @optional
-@argument/Object target
-@argument/Object change
+/**     @module fauxmongo
+    Applies updates and test queries on local javascript Objects instead of records on a far-away
+    MongoDB instance. Works comfortably in both the Node.js and browser environments.
 */
 
+/**     @property/Function getTypeStr
+    @development
+    @private
+    Get a useful type string for various javascript types.
+*/
 var typeGetter = ({}).toString;
+try { Buffer; } catch (err) { Buffer = function(){}; }
 function getTypeStr (obj) {
     var tstr = typeGetter.apply(obj).slice(8,-1).toLowerCase();
-    if (tstr == 'object' && obj instanceof Buffer) return 'buffer';
+    if (tstr == 'object')
+        if (obj instanceof Buffer) return 'buffer';
+        else return tstr;
+    if (tstr == 'text') return 'textnode';
+    if (tstr == 'comment') return 'commentnode';
+    if (tstr.slice(0,4) == 'html') return 'element';
     return tstr;
 }
 
@@ -36,8 +44,8 @@ function moreDollars (level, isArray) {
         var item = level[key];
         var type = getTypeStr (item);
         if (type == 'object')
-            if (moreDollars (item)) continue;
-            else return true;
+            if (moreDollars (item)) return true;
+            else continue;
         if (type == 'array')
             if (moreDollars (item, true)) return true;
     }
@@ -197,6 +205,8 @@ var QFIELD_OPS = {
 };
 
 /**     @property/Object QARR_OPS
+    @development
+    @private
 
 */
 var QARR_OPS = {
@@ -212,6 +222,8 @@ var QARR_OPS = {
 };
 
 /**     @property/Object QUERY_OPS
+    @development
+    @private
 
 */
 var QUERY_OPS = {};
@@ -288,29 +300,6 @@ function matchQuery (doc, query) {
             ))
                 return false;
         }
-    }
-
-    return true;
-}
-
-/**     @property/Function matchRawQuery
-    Determine whether a leaf matches a query leaf. e.g. if your document is
-    `{ a:[ 1, 2, 3, 4, 5 ] }` and your query is `{ a:{ $gt:3 } }`, you might call
-    `matchRawQuery (4, { $gt:3 })`.
-*/
-function matchRawQuery (leaf, query) {
-    if (leaf === undefined) return false;
-    var pointer = { id:leaf };
-    for (var op in query) {
-        // apply the operator
-        if (op == '$exists') // we know it does
-            continue;
-        if (!QUERY_OPS[op] (
-            pointer,
-            'id',
-            query[op]
-        ))
-            return false;
     }
 
     return true;
@@ -408,7 +397,7 @@ var FIELD_OPS = {
         if (getTypeStr (change) != 'number')
             throw new Error ('cannot $mul by a non-numeric value');
         if (!Object.hasOwnProperty.call (pointer, path))
-            pointer[path] = change;
+            pointer[path] = 0;
         else
             if (getTypeStr (pointer[path]) != 'number')
                 throw new Error ('cannot apply $mul on a non-numeric value');
@@ -551,7 +540,7 @@ function getDocsort (sspec) {
             var path = specPaths[i];
             var aPointer = able;
             var bPointer = baker;
-            var direction = sspec[specPaths[i]] > 0 ? 1 : -1;
+            var direction = sspec[specFullpaths[i]] > 0 ? 1 : -1;
             for (var j in path) {
                 var frag = path[j];
                 if (!Object.hasOwnProperty.call (able, frag))
@@ -564,9 +553,9 @@ function getDocsort (sspec) {
                     else continue;
                 aPointer = aPointer[frag];
                 bPointer = bPointer[frag];
-                var comp = direction * leafsort (able, baker);
-                if (comp) return comp;
             }
+            var comp = direction * leafsort (aPointer, bPointer);
+            if (comp) return comp;
         }
         return 0;
     };
@@ -585,78 +574,72 @@ var ARR_OPS = {
             pointer[path] = [ change ];
             return;
         }
-        if (getTypeStr (arr) != 'array')
-            throw new Error ('cannot apply $addToSet to non-Array property');
 
         var arr = pointer[path];
-        var changeType = getTypeStr (change);
-        if (changeType == 'object')
-            if (Object.hasOwnProperty.call (change, '$each')) {
-
-            } else if (moreDollars (change))
-                throw new Error ('invalid property key in complex update');
+            if (getTypeStr (change) == 'object' && Object.hasOwnProperty.call (change, '$each'))
+                for (var i in change.$each) {
+                    var candidate = change.$each[i];
+                    var write = true;
+                    for (var j in arr)
+                        if (matchLeaves (arr[j], candidate)) {
+                            write = false;
+                            break;
+                        }
+                    if (write)
+                        arr.push (change.$each[i]);
+                }
             else {
-                // complex leaf insert
                 for (var i in arr)
-                    if (arr[i] == 'object' && deepMatchWithoutDollars (arr[i], change))
+                    if (matchLeaves (arr[i], change))
                         return;
                 arr.push (change);
             }
-        else if (changeType == 'array') {
-            // complex leaf insert - Array version
-            for (var i in arr)
-                if (arr[i] == 'array' && deepMatchWithoutDollars (arr[i], change, true))
-                    return;
-            arr.push (change);
-        } else {
-            // single leaf insert
-            for (var i in arr)
-                if (arr[i] === change)
-                    return;
-            arr.push (change);
-        }
     },
     '$push':        function $push (pointer, path, change) {
         var changeType = getTypeStr (change);
         var arr = pointer[path];
-        if (changeType == 'object')
-            if (Object.hasOwnProperty.call (change, '$each')) {
-                var each = change.$each;
-                // apply $each, with or without $position
-                var position;
-                if (Object.hasOwnProperty.call (change, '$position'))
-                    position = change.$position >= arr.length ? undefined : change.$position;
-                if (position === undefined)
-                    for (var i in each)
-                        if (moreDollars (each[i]))
-                            throw new Error ('invalid property key in complex update');
-                        else arr.push (each[i]);
+        if (changeType != 'object')
+            arr.push (change);
+        else if (Object.hasOwnProperty.call (change, '$each')) {
+            var each = change.$each;
+            // apply $each, with or without $position
+            var position;
+            if (Object.hasOwnProperty.call (change, '$position'))
+                if (change.$position < 0)
+                    throw new Error ('$position does not accept negative numbers');
                 else
-                    for (var i in each)
-                        if (moreDollars (each[i]))
-                            throw new Error ('invalid property key in complex update');
-                        else arr.splice (position, 0, each[i]);
+                    position = change.$position >= arr.length ? undefined : change.$position;
+            if (position === undefined)
+                for (var i in each)
+                    if (moreDollars (each[i]))
+                        throw new Error ('invalid property key in complex update');
+                    else arr.push (each[i]);
+            else
+                for (var i in each)
+                    if (moreDollars (each[i]))
+                        throw new Error ('invalid property key in complex update');
+                    else arr.splice (position, 0, each[i]);
 
-                // apply $sort
-                if (Object.hasOwnProperty.call (change, '$sort')) {
-                    var sspec = change.$sort;
-                    if (typeof sspec == 'number') {
-                        sspec = sspec > 0 ? 1 : -1;
-                        // leaf sort
-                        arr.sort (getLeafsort (sspec));
-                    } else
-                        // document sort
-                        arr.sort (getDocsort (sspec));
-                }
+            // apply $sort
+            if (Object.hasOwnProperty.call (change, '$sort')) {
+                var sspec = change.$sort;
+                if (typeof sspec == 'number') {
+                    sspec = sspec > 0 ? 1 : -1;
+                    // leaf sort
+                    arr.sort (getLeafsort (sspec));
+                } else
+                    // document sort
+                    arr.sort (getDocsort (sspec));
+            }
 
-                // apply $slice
-                if (Object.hasOwnProperty.call (change, '$slice'))
-                    if (change.$slice < 0)
-                        arr = arr.slice (change.$slice);
-                    else
-                        arr = arr.slice (0, change.$slice);
-            } else if (!moreDollars (change))
-                arr.push (change);
+            // apply $slice
+            if (Object.hasOwnProperty.call (change, '$slice'))
+                if (change.$slice < 0)
+                    pointer[path] = arr.slice (change.$slice);
+                else
+                    pointer[path] = arr.slice (0, change.$slice);
+        } else if (!moreDollars (change))
+            arr.push (change);
     },
     '$pop':         function $pop (pointer, path, change) {
         var changeType = getTypeStr (change);
@@ -671,22 +654,31 @@ var ARR_OPS = {
     '$pull':        function $pull (pointer, path, change) {
         var arr = pointer[path];
         var changeType = getTypeStr (change);
-        if (changeType == 'object' && moreDollars (change)) {
+        if (changeType == 'object') {
             // match with query
             for (var i=0,j=arr.length; i<j; i++)
-                if (matchRawQuery (arr[i], change)) {
+                if (matchQuery (arr[i], change)) {
                     arr.splice (i, 1);
                     i--; j--;
                 }
-        } else {
+        } else
             // match with leaf
             for (var i=0,j=arr.length; i<j; i++)
                 if (matchLeaves (arr[i], change)) {
                     arr.splice (i, 1);
                     i--; j--;
                 }
-        }
-
+    },
+    '$pullAll':     function $pullAll (pointer, path, change) {
+        var arr = pointer[path];
+        if (getTypeStr (change) != 'array')
+            throw new Error ('$pullAll requires an Array of values/documents to match');
+        for (var i in change)
+            for (var k=0, l=arr.length; k<l; k++)
+                if (matchLeaves (arr[k], change[i])) {
+                    arr.splice (k, 1);
+                    k--; l--;
+                }
     }
 };
 
@@ -746,11 +738,41 @@ function update (query, target, change) {
         query = undefined;
     }
 
-    // handle $rename
-    if (Object.hasOwnProperty.call (change, '$rename')) {
-        // KEYWORD
+    // $rename
+    if (Object.hasOwnProperty.call (change, '$rename'))
+        for (var oldPath in change.$rename) {
+            // acquire the value assigned to the current path, if able
+            // else skip this path
+            var pointer = target;
+            var notOK;
+            var frags = oldPath.split ('.');
+            for (var i in frags) {
+                var type = getTypeStr (pointer);
+                if (type != 'object' && type != 'array')
+                    throw new Error ('cannot traverse data to rename path '+oldPath);
 
-    }
+                var frag = frags[i];
+                if (frag[0] == '$')
+                    throw new Error ('cannot rename dynamic path '+oldPath);
+                if (!Object.hasOwnProperty.call (pointer, frag)) { // value not found
+                    notOK = true;
+                    break;
+                }
+                pointer = pointer[frag];
+            }
+            if (notOK) continue; // try the next path
+
+            var newPath = change.$rename[oldPath];
+            if (!Object.hasOwnProperty.call (change, '$set'))
+                change.$set = {};
+            // what do you think about the newPath?
+            if (Object.hasOwnProperty.call (change.$set, newPath))
+                throw new Error ('cannot rename more than one value to the same path '+newPath);
+            change.$set[newPath] = pointer;
+            if (!Object.hasOwnProperty.call (change, '$unset'))
+                change.$unset = {};
+            change.$unset[oldPath] = true;
+        }
 
     var dollarTarget, dollarTargetStr; // only one key can use the $ operator at a time
     for (var op in change) {
@@ -810,7 +832,7 @@ function update (query, target, change) {
 
                 // normal path fragment
                 if (writing) {
-                    pointer[frag] = {};
+                    pointer = pointer[frag] = {};
                     continue;
                 }
                 if (Object.hasOwnProperty.call (pointer, frag)) {
@@ -823,7 +845,7 @@ function update (query, target, change) {
                     break;
                 }
                 writing = true;
-                pointer[frag] = {};
+                pointer = pointer[frag] = {};
                 pointerType = 'object';
             }
             if (!ok) continue;
@@ -858,6 +880,15 @@ function update (query, target, change) {
             } else if (frag[0] == '$')
                 throw new Error ('invalid path '+path);
 
+            // array operations require pointer[frag] to be an array
+            if (ARR_OPS.hasOwnProperty (op))
+                if (pointer[frag] === undefined)
+                    if (stubborn)
+                        pointer[frag] = [];
+                    else continue;
+                else if (getTypeStr (pointer[frag]) != 'array')
+                    throw new Error ('cannot apply '+op+' to non-array value');
+
             // apply the operator
             TOP_OPS[op] (
                 pointer,
@@ -870,7 +901,6 @@ function update (query, target, change) {
 
 module.exports.update = update;
 module.exports.matchQuery = matchQuery;
-module.exports.matchRawQuery = matchRawQuery;
 
 /**     @enum BSON_TYPES
 

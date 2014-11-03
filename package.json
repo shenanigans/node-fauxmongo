@@ -10,11 +10,17 @@
     "orm",
     "model"
   ],
-  "homepage": "https://github.com/shenanigans/fauxmongo",
-  "bugs": "https://github.com/shenanigans/fauxmongo/issues",
+  "homepage": "https://github.com/shenanigans/node-fauxmongo",
+  "bugs": "https://github.com/shenanigans/node-fauxmongo/issues",
   "license": "MIT",
   "author": "Kevin \"Schmidty\" Smith",
   "main": "fauxmongo.js",
-  "repository": "https://github.com/shenanigans/fauxmongo.git",
-  "dependencies": {}
+  "repository": "https://github.com/shenanigans/node-fauxmongo.git",
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "^2.0.1"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha"
+  }
 }
