@@ -62,48 +62,340 @@ before (function (done) {
 var nextID = 1;
 function getNextID(){ return 'tempID_'+nextID++; }
 
+// ========================================================================================= queries
+function testQuery (doc, query, callback) {
+    var _id = query._id = doc._id = getNextID();
+    collection.insert (doc, { w:1 }, function (err) {
+        collection.findOne (query, function (err, rec) {
+            collection.remove ({ _id:_id });
+            if (err) return callback (err);
+
+            try {
+                var fauxpinion = fauxmongo.matchQuery (doc, query);
+            } catch (err) {
+                return callback (err);
+            }
+            if (rec && !fauxpinion)
+                return process.nextTick (function(){
+                    callback (new Error ('MongoDB found the document but fauxmongo did not'));
+                });
+            if (!rec && fauxpinion)
+                return process.nextTick (function(){
+                    callback (new Error ('fauxmongo found the document but MongoDB did not'));
+                });
+            callback();
+        });
+    });
+}
 describe ("queries", function(){
     describe ("simple values", function(){
-
+        it ("selects by a single shallow path", function (done) {
+            testQuery (
+                { able:9, baker:'this', charlie:'that' },
+                { baker:'this' },
+                done
+            );
+        });
+        it ("selects by a single deep path", function (done) {
+            testQuery (
+                { able:9, baker:{ baker:99, able:{ able:72 }}},
+                { 'baker.able.able':72 },
+                done
+            );
+        });
+        it ("selects by multiple deep paths", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}, baker:99, able:{ able:72 }}},
+                { 'baker.able.able':72, 'baker.charlie.able.able':7 },
+                done
+            );
+        });
+        it ("excludes by a single shallow path", function (done) {
+            testQuery (
+                { able:9, baker:'this', charlie:'that' },
+                { able:'this', baker:'this' },
+                done
+            );
+        });
+        it ("excludes by a single deep path, with valid deep paths", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}, baker:99, able:{ able:72 }}},
+                { 'baker.able.able':72, 'baker.charlie.able.able':"7" },
+                done
+            );
+        });
     });
     describe ("$in/$nin", function(){
-
+        it ("selects by $in", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}, baker:99, able:{ able:72 }}},
+                { able:{ $in:[ 6, 7, 8, 9, 10, 11 ] }},
+                done
+            );
+        });
+        it ("excludes by $in", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}, baker:99, able:{ able:72 }}},
+                { able:{ $in:[ 6, 7, 8, 10, 11 ] }},
+                done
+            );
+        });
+        it ("selects by $nin", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}, baker:99, able:{ able:72 }}},
+                { able:{ $nin:[ 6, 7, 8, 10, 11 ] }},
+                done
+            );
+        });
+        it ("excludes by $nin", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}, baker:99, able:{ able:72 }}},
+                { able:{ $nin:[ 6, 7, 8, 9, 10, 11 ] }},
+                done
+            );
+        });
+        it ("selects by $nin for multiple paths", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}, baker:99, able:{ able:72 }}},
+                {
+                    able:                       { $nin:[ 6, 7, 8, 10, 11 ] },
+                    'baker.charlie.able.able':  { $nin:[ 6, 8, 9, 10, 11 ] }
+                },
+                done
+            );
+        });
+        it ("excludes by $nin for multiple paths", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}, baker:99, able:{ able:72 }}},
+                {
+                    able:                       { $nin:[ 6, 7, 8, 9, 10, 11 ] },
+                    'baker.charlie.able.able':  { $nin:[ 6, 8, 9, 10, 11 ] }
+                },
+                done
+            );
+        });
     });
     describe ("$gt(e)/$lt(e)", function(){
-
+        it ("selects by $gt", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}}},
+                { able:{ $gt:7 }},
+                done
+            );
+        });
+        it ("excludes by $gt when equal", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}}},
+                { able:{ $gt:9 }},
+                done
+            );
+        });
+        it ("selects by $gte", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}}},
+                { able:{ $gte:7}},
+                done
+            );
+        });
+        it ("selects by $gte when equal", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}}},
+                { able:{ $gte:9 }},
+                done
+            );
+        });
+        it ("selects by $lt", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}}},
+                { able:{ $lt:12 }},
+                done
+            );
+        });
+        it ("excludes by $lt when equal", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}}},
+                { able:{ $lt:9 }},
+                done
+            );
+        });
+        it ("selects by $lte", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}}},
+                { able:{ $lte:12}},
+                done
+            );
+        });
+        it ("selects by $lte when equal", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}}},
+                { able:{ $lte:9 }},
+                done
+            );
+        });
     });
     describe ("$ne", function(){
-
+        it ("selects", function (done) {
+            testQuery (
+                { able:9 },
+                { able:{ $ne:8 }},
+                done
+            );
+        });
+        it ("excludes", function (done) {
+            testQuery (
+                { able:9, baker:{ charlie:{ able:{ able:7 }}, baker:99, able:{ able:72 }}},
+                { able:{ $ne:9 }},
+                done
+            );
+        });
+        it ("selects without coersion issues", function (done) {
+            testQuery (
+                { able:9 },
+                { able:{ $ne:'9' }},
+                done
+            );
+        });
+        it ("selects without coersion issues", function (done) {
+            testQuery (
+                { able:'9' },
+                { able:{ $ne:9 }},
+                done
+            );
+        });
     });
     describe ("$mod", function(){
-
+        it ("selects", function (done) {
+            testQuery (
+                { able:39 },
+                { able:{ $mod:[ 10, 9 ] }},
+                done
+            );
+        });
+        it ("excludes", function (done) {
+            testQuery (
+                { able:39 },
+                { able:{ $mod:[ 10, 8 ] }},
+                done
+            );
+        });
     });
     describe ("$regex", function(){
-
-    });
-    describe ("$where", function(){
-
-    });
-    describe ("$all", function(){
-
+        it ("selects", function (done) {
+            testQuery (
+                { able:'asdf' },
+                { able:{ $regex:/\w+/ }},
+                done
+            );
+        });
+        it ("excludes", function (done) {
+            testQuery (
+                { able:'asdf' },
+                { able:{ $regex:/\d+/ }},
+                done
+            );
+        });
     });
     describe ("$elemMatch", function(){
-
+        it ("selects", function (done) {
+            testQuery (
+                { able:[
+                    { able:0 },
+                    { able:1 },
+                    { able:2 },
+                    { able:3 },
+                    { able:4 },
+                    { able:5 },
+                    { able:6 },
+                    { able:7 },
+                    { able:8 },
+                    { able:9 }
+                ] },
+                { able:{ $elemMatch:{ able:{ $gt:2, $lt:4 } }}},
+                done
+            );
+        });
+        it ("excludes", function (done) {
+            testQuery (
+                { able:[
+                    { able:0 },
+                    { able:1 },
+                    { able:2 },
+                    { able:4 },
+                    { able:5 },
+                    { able:6 },
+                    { able:7 },
+                    { able:8 },
+                    { able:9 }
+                ] },
+                { able:{ $elemMatch:{ able:{ $gt:2, $lt:4 } }}},
+                done
+            );
+        });
     });
     describe ("$size", function(){
 
     });
+    describe ("$all", function(){
+        it ("selects with basic values", function (done) {
+            testQuery (
+                { able:[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ] },
+                { able:{ $all:[ 2, 4, 6 ] }},
+                done
+            );
+        });
+        it ("excludes with basic values", function (done) {
+            testQuery (
+                { able:[ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ] },
+                { able:{ $all:[ 2, 4, 6, 10 ] }},
+                done
+            );
+        });
+        it ("selects with complex leaves", function (done) {
+            testQuery (
+                { able:[
+                    { able:0 },
+                    { able:1 },
+                    { able:2 },
+                    { able:4 },
+                    { able:5 },
+                    { able:6 },
+                    { able:7 },
+                    { able:8 },
+                    { able:9 }
+                ] },
+                { able:{ $all:[ { able:2 }, { able:4 }, { able:6 } ] }},
+                done
+            );
+        });
+        it ("excludes with complex leaves", function (done) {
+            testQuery (
+                { able:[
+                    { able:0 },
+                    { able:1 },
+                    { able:2 },
+                    { able:4 },
+                    { able:5 },
+                    { able:6 },
+                    { able:7 },
+                    { able:8 },
+                    { able:9 }
+                ] },
+                { able:{ $all:[ { able:2 }, { able:6 }, { able:10 } ] }},
+                done
+            );
+        });
+    });
     describe ("logical operators", function(){
-        describe ("and", function(){
+        describe ("$and", function(){
 
         });
-        describe ("or", function(){
+        describe ("$or", function(){
 
         });
-        describe ("not", function(){
+        describe ("$not", function(){
 
         });
-        describe ("nor", function(){
+        describe ("$nor", function(){
 
         });
         describe ("complex logical operators", function(){
@@ -122,8 +414,7 @@ function testUpdate (query, target, update, callback) {
         query = {};
     }
 
-    var _id = query._id = getNextID();
-    target._id = _id;
+    var _id = query._id = target._id = getNextID();
     collection.insert (target, { w:1 }, function (err) {
         if (err) return callback (err);
         try {
@@ -145,8 +436,8 @@ function testUpdate (query, target, update, callback) {
 
                     fauxmongo.update (query, target, update);
                     if (deepCompare (target, rec))
-                        callback();
-                    else {
+                        return callback();
+                    process.nextTick (function(){
                         callback (new Error (
                             'database and fauxmongo did not agree.\n'
                           + 'fauxmongo\n'
@@ -154,7 +445,7 @@ function testUpdate (query, target, update, callback) {
                           + '\nmongodb\n'
                           + JSON.stringify (rec)
                         ));
-                    }
+                    });
                 });
             });
         } catch (err) {
@@ -182,7 +473,7 @@ describe ("updates", function(){
         it ("infills Objects to set new keys in the document", function (done) {
             testUpdate (
                 { able:9, baker:{} },
-                { $set:{ 'baker.able.able':99, 'charlie.epsilon':42 }},
+                { $set:{ 'baker.able.able':99, 'charlie.easy':42 }},
                 done
             );
         });
@@ -196,7 +487,7 @@ describe ("updates", function(){
         it ("overwrites keys in the document", function (done) {
             testUpdate (
                 { able:99, charlie:'cheese' },
-                { $set:{ able:7, delta:'value' }},
+                { $set:{ able:7, dog:'value' }},
                 done
             );
         });
@@ -204,8 +495,8 @@ describe ("updates", function(){
     describe ("$unset", function(){
         it ("deletes keys from the document", function (done) {
             testUpdate (
-                { able:9, baker:{ delta:42 }},
-                { $unset:{ able:true, 'baker.delta':true }},
+                { able:9, baker:{ dog:42 }},
+                { $unset:{ able:true, 'baker.dog':true }},
                 done
             );
         });
@@ -214,7 +505,7 @@ describe ("updates", function(){
         it ("renames keys in the document", function (done) {
             testUpdate (
                 { able:1, baker:2, charlie:{ able:9 }},
-                { $rename:{ able:'delta', baker:'epsilon', 'charlie.able':'foo.bar.baz' }},
+                { $rename:{ able:'dog', baker:'easy', 'charlie.able':'foo.bar.baz' }},
                 done
             );
         });
@@ -563,7 +854,7 @@ describe ("updates", function(){
     describe ("$sort", function(){
         it ("sorts simple values", function (done) {
             testUpdate (
-                { able:[ 'able', 'baker', 'charlie', 'delta' ]},
+                { able:[ 'able', 'baker', 'charlie', 'dog' ]},
                 { $push:{ able:{ $each:[], $sort:-1 }}},
                 done
             );
@@ -593,7 +884,12 @@ describe ("updates", function(){
                         'bacon sandwich',
                         /eels/,
                         new Buffer ([ 3, 5, 7, 9 ]),
-                        new Buffer ([ 0, 1, 1 ])
+                        new Buffer ([ 0, 1, 1 ]),
+                        5,
+                        [ 6 ],
+                        7,
+                        [ 8 ],
+                        9
                     ]
                 },
                 { $push:{ $each:[], $sort:1 }},

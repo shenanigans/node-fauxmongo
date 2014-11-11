@@ -52,13 +52,14 @@ function moreDollars (level, isArray) {
     return false;
 }
 
+
 /**     @property/Function matchLeaves
     @development
     @private
-
-@argument/Object|Array|Number|String|Buffer|Boolean|Date|RegExp|undefined able
-@argument/Object|Array|Number|String|Buffer|Boolean|Date|RegExp|undefined baker
-@returns Boolean
+    Compare two MongoDB documents, lists or leaves for deep equality.
+@argument able
+@argument baker
+@returns/Boolean
 */
 function matchLeaves (able, baker) {
     if (able === baker) return true;
@@ -81,10 +82,11 @@ function matchLeaves (able, baker) {
     } else return false;
 }
 
+
 /**     @property/json LOOKUP_BSON_TYPE
     @development
     @private
-    Convert a BSON type number to a recognizable javascript type string.
+    Maps BSON type numbers to the same type Strings produced by [getTypeStr](.getTypeStr).
 */
 var LOOKUP_BSON_TYPE = {
     1:  'number',
@@ -102,9 +104,57 @@ var LOOKUP_BSON_TYPE = {
     18: 'number'
 };
 
-/**     @property/Object QFIELD_OPS
+
+/**     @property/Function QueryValidator
+
+@argument/Object|Array pointer
+    The immediate parent of the node being tested.
+@argument/String|Number path
+    The **simple** key on the parent document where the value to be validated is stored.
+@argument query
+    The query clause. Individual operators will expect either a document or a query specifier, but
+    never interchangeably.
+@returns/Boolean
+*/
+/**     @property/json QFIELD_OPS
     @development
     @private
+    A map of query operators that apply to individual leaves, to their query validator Functions.
+@Function $gt
+    @super .QueryValidator
+    Select Numbers greater than a provided Number.
+@Function $gte
+    @super .QueryValidator
+    Select Numbers greater or equal to a provided Number.
+@Function $lt
+    @super .QueryValidator
+    Select Numbers less than a provided Number.
+@Function $lte
+    @super .QueryValidator
+    Select Numbers less or equal to a provided Number.
+@Function $in
+    @super .QueryValidator
+    Select values [equal to](.matchLeaves) any one element among a list of candidate documents.
+@Function $nin
+    @super .QueryValidator
+    Select values [not equal to](.matchLeaves) any of the elements among a list of candidate
+    documents.
+@Function $ne
+    @super .QueryValidator
+    Select a value [not equal to](.matchLeaves) a provided value.
+@Function $mod
+    @super .QueryValidator
+    Select a Number where for the provided `divisor` and `remainder`,
+    `candidate % divisor == remainder`.
+@Function $regex
+    @super .QueryValidator
+    Select a String that matches the provided regular expression.
+@Function $type
+    @super .QueryValidator
+    Select any value of the specified [type](.getBSONType).
+@Function $where
+    @super .QueryValidator
+    Submit the candidate value to a validator Function and convert the return value to Boolean.
 */
 var QFIELD_OPS = {
     '$gt':          function $gt (pointer, path, query) {
@@ -127,11 +177,11 @@ var QFIELD_OPS = {
         var isString = typeof val == 'string';
         for (var i in query) {
             var subquery = query[i];
-            if (getTypeStr (subquery == 'regexp')) {
+            if (getTypeStr (subquery) == 'regexp') {
                 if (!isString) continue;
                 else if (val.match (subquery))
                     return true;
-            } else if (matchLeaves (query[i], val))
+            } else if (matchLeaves (subquery, val))
                 return true;
         }
         return false;
@@ -161,7 +211,7 @@ var QFIELD_OPS = {
         var isString = typeof val == 'string';
         for (var i in query) {
             var subquery = query[i];
-            if (getTypeStr (subquery == 'regexp')) {
+            if (getTypeStr (subquery) == 'regexp') {
                 if (!isString) continue;
                 else if (val.match (subquery))
                     return false;
@@ -196,25 +246,40 @@ var QFIELD_OPS = {
         if (!LOOKUP_BSON_TYPE.hasOwnProperty (query))
             return false;
         return getTypeStr (pointer[path]) == LOOKUP_BSON_TYPE[query];
-    },
-    '$where':       function $where (pointer, path, query) {
-        if (typeof query != 'function')
-            throw new Error ('$where requires a Function');
-        return Boolean (query.call (pointer[path]));
     }
 };
 
 /**     @property/Object QARR_OPS
     @development
     @private
-
+    A map of query operators that apply to individual Arrays, to their query validator Functions.
 */
 var QARR_OPS = {
     '$all':         function $all (pointer, path, query) {
+        var arr = pointer[path];
+        if (getTypeStr (query) != 'array')
+            throw new Error ('$all requires an Array of values');
+        if (!arr.length) return true;
 
+        var clone = [];
+        clone.push.apply (clone, query);
+        for (var i in arr)
+            for (var j=0,k=clone.length; j<k; j++)
+                if (matchLeaves (arr[i], clone[j])) {
+                    clone.splice (j, 1);
+                    j--; k--;
+                    if (!k) return true;
+                }
+        return false;
     },
     '$elemMatch':   function $elemMatch (pointer, path, query) {
-
+        if (getTypeStr (query) != 'object')
+            throw new Error ('$elemMatch requires a query document');
+        var arr = pointer[path];
+        for (var i in arr)
+            if (matchQuery (arr[i], query))
+                return true;
+        return false;
     },
     '$size':        function $size (pointer, path, query) {
 
@@ -224,20 +289,24 @@ var QARR_OPS = {
 /**     @property/Object QUERY_OPS
     @development
     @private
-
+    A map of all query operators to their query validator Functions.
 */
 var QUERY_OPS = {};
 for (var key in QFIELD_OPS) QUERY_OPS[key] = QFIELD_OPS[key];
 for (var key in QARR_OPS) QUERY_OPS[key] = QARR_OPS[key];
 
 /**     @property/Function matchQuery
+    @api
     Determine whether a query selects a given document.
 @argument/Object doc
 @argument/Object query
-@returns Boolean
+@returns/Boolean
 */
 function matchQuery (doc, query) {
     for (var path in query) {
+        if (path == '$where')
+            throw new Error ('$where is not supported');
+
         var frags = path.split ('.');
         var subquery = query[path];
         var subtype = getTypeStr (query[path]);
@@ -305,50 +374,11 @@ function matchQuery (doc, query) {
     return true;
 }
 
-/**     @property/Function deepMatchWithoutDollars
+/**     @property/Object FIELD_OPS
     @development
     @private
-    Evaluate two [Objects]() or [Arrays]() for deep equality, throwing an [Error]() if any key
-    starting with `"$"` is found.
-@argument/Object|Array able
-@argument/Object|Array baker
-@argument/Boolean isArray
+    A map of update operators that apply to individual leaves, to their update applicator Functions.
 */
-function deepMatchWithoutDollars (able, baker, isArray) {
-    if (isArray) {
-        if (able.length != baker.length) return false;
-        for (var i in able) {
-            var aType = getTypeStr (able);
-            var bType = getTypeStr (baker);
-            if (aType != bType) return false;
-            if (aType != 'object' && aType != 'array') {
-                if (able[i] !== baker[i]) return false;
-            } else if (!deepMatchWithoutDollars (able[i], baker[i], aType == 'array'))
-                return false;
-        }
-        return true;
-    }
-
-    if (Object.keys (able).length != Object.keys (baker).length)
-        return false;
-
-    for (var key in able) {
-        if (key[0] == '$')
-            throw new Error ('invalid property key in complex update');
-        if (!Object.hasOwnProperty.call (baker, key))
-            return false;
-
-        var aType = getTypeStr (able[key]);
-        var bType = getTypeStr (baker[key]);
-        if (aType != bType) return false;
-        if (aType != 'object' && aType != 'array') {
-            if (able[key] !== baker[key]) return false;
-        } else if (!deepMatchWithoutDollars (able[key], baker[key], aType == 'array'))
-            return false;
-    }
-    return true;
-}
-
 var FIELD_OPS = {
     '$set':         function $set (pointer, path, change) {
         var changeType = getTypeStr (change);
@@ -441,6 +471,16 @@ var ARR_SORT_PRIORITY = [
 ];
 var SORT_PRIORITY = {};
 for (var i in ARR_SORT_PRIORITY) SORT_PRIORITY[ARR_SORT_PRIORITY[i]] = i;
+
+/**     @property/Function getLeafSort
+    @development
+    @private
+    Creates a simple sort function closing on the desired sort polarity. MongoDB documents are
+    compared as leaf data, with data type being the highest priority. Some documents may cause
+    recursion.
+@argument/Number sspec
+@returns/Function
+*/
 function getLeafsort (sspec) {
     sspec *= -1;
     function leafsort (able, baker) {
@@ -525,6 +565,16 @@ function getLeafsort (sspec) {
     return leafsort;
 }
 
+
+/**     @property/Function getDocSort
+    @development
+    @private
+    Creates a complex sort function closing on the provided specification document. Documents are
+    compared preferentially according to the specification.
+@argument/Object sspec
+@returns/Function
+    A Function suitable for use with [standard sorting](Array#sort).
+*/
 function getDocsort (sspec) {
     var leafsort = getLeafsort (1);
     var specPaths = [];
@@ -561,6 +611,11 @@ function getDocsort (sspec) {
     };
 }
 
+/**     @property/Object ARR_OPS
+    @development
+    @private
+    A map of update operators that apply to Arrays, to their update applicator Functions.
+*/
 var ARR_OPS = {
     '$addToSet':    function $addToSet (pointer, path, change) {
         if (
@@ -682,16 +737,31 @@ var ARR_OPS = {
     }
 };
 
+/**     @property/Object TOP_OPS
+    @development
+    @private
+    A map of all known update operators to their update applicator Functions.
+*/
 var TOP_OPS = {};
 for (var op in FIELD_OPS) TOP_OPS[op] = FIELD_OPS[op];
 for (var op in ARR_OPS) TOP_OPS[op] = ARR_OPS[op];
 
+/**     @property/Object MOD_OPS
+    @development
+    @private
+    A truth map of those update operators which are considered modifiers.
+*/
 var MOD_OPS = {
     '$each':        true,
     '$position':    true,
     '$slice':       true,
     '$sort':        true
 };
+/**     @property/Object STUBBORN_OPS
+    @development
+    @private
+    A truth map of every update modifier that infills missing Objects when resolving a deep path.
+*/
 var STUBBORN_OPS = {
     '$set':         true,
     '$inc':         true,
@@ -704,6 +774,11 @@ var STUBBORN_OPS = {
     '$pushAll':     true
 };
 
+/**     @property/Function resolveDollar
+    @development
+    @private
+
+*/
 function resolveDollar (target, query, path, pathstr) {
     // scan the target for paths that begin with the supplied path.
     // there can be more than one - the last path that matches an element sets the dollarsign op
@@ -731,6 +806,9 @@ function resolveDollar (target, query, path, pathstr) {
     return dollar;
 }
 
+/**     @property/Function update
+
+*/
 function update (query, target, change) {
     if (!change) {
         change = target;
@@ -903,7 +981,7 @@ module.exports.update = update;
 module.exports.matchQuery = matchQuery;
 
 /**     @enum BSON_TYPES
-
+    For convenience, MongoDB's data type constants are provided.
 @named DOUBLE
 @named STRING
 @named OBJECT
@@ -918,24 +996,23 @@ module.exports.matchQuery = matchQuery;
 @named FUNCTION
 @named INTEGER
 @named LONG
-@named BSON_TYPES
 */
 var BSON_TYPES = {};
-module.exports.DOUBLE     = BSON_TYPES['double']      = 1;
-module.exports.STRING     = BSON_TYPES['string']      = 2;
-module.exports.OBJECT     = BSON_TYPES['object']      = 3;
-module.exports.ARRAY      = BSON_TYPES['array']       = 4;
-module.exports.BUFFER     = BSON_TYPES['buffer']      = 5;
-module.exports.UNDEFINED  = BSON_TYPES['undefined']   = 6;
-module.exports.OBJECT_ID                              = 7;
-module.exports.BOOLEAN    = BSON_TYPES['boolean']     = 8;
-module.exports.DATE       = BSON_TYPES['date']        = 9;
-module.exports.NULL       = BSON_TYPES['null']        = 10;
-module.exports.REGEXP     = BSON_TYPES['regexp']      = 11;
-module.exports.FUNCTION   = BSON_TYPES['function']    = 13;
-module.exports.INTEGER    = BSON_TYPES['integer']     = 16;
-module.exports.LONG       = BSON_TYPES['long']        = 18;
-module.exports.BSON_TYPES = BSON_TYPES;
+BSON_TYPES['DOUBLE']        = 1;
+BSON_TYPES['STRING']        = 2;
+BSON_TYPES['OBJECT']        = 3;
+BSON_TYPES['ARRAY']         = 4;
+BSON_TYPES['BUFFER']        = 5;
+BSON_TYPES['UNDEFINED']     = 6;
+BSON_TYPES['OBJECT_ID']     = 7;
+BSON_TYPES['BOOLEAN']       = 8;
+BSON_TYPES['DATE']          = 9;
+BSON_TYPES['NULL']          = 10;
+BSON_TYPES['REGEXP']        = 11;
+BSON_TYPES['FUNCTION']      = 13;
+BSON_TYPES['INTEGER']       = 16;
+BSON_TYPES['LONG']          = 18;
+module.exports.BSON_TYPES   = BSON_TYPES;
 
 /**     @property/Function getBSONType
 
@@ -943,8 +1020,23 @@ module.exports.BSON_TYPES = BSON_TYPES;
 @argument/Boolean simpleNums
     @optional
     In simpleNums mode, a [Number]() is always of [DOUBLE](.DOUBLE) type.
-@returns Number
-    Note that `0` signals that the type could not be found. `0` is not a valid BSON type.
+@returns/Number
+    Returns one of the following values from [BSON_TYPES]():
+     * 0 - unknown type
+     * 1 - double
+     * 2 - string
+     * 3 - object
+     * 4 - array
+     * 5 - buffer
+     * 6 - undefined
+     * 7 - ObjectID
+     * 8 - boolean
+     * 9 - date
+     * 10 - null
+     * 11 - regexp
+     * 13 - function
+     * 16 - integer
+     * 18 - long
 */
 module.exports.getBSONType = function (obj, simpleNums) {
     var type = getTypeStr (obj);

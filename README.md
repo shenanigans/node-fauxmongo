@@ -25,10 +25,11 @@ $bit uses the upsert behavior added in MongoDB version 2.5.3. If you're curious,
 permit the use of up to three bitwise operands sequentially. In both MongoDB and `fauxmongo`, they
 will be executed in document order.
 
-$where only accepts Functions, not Strings.
-
 Contrary to the MongoDB documentation, `$pull` **never** performs exact matches on Objects. Use
 `$pullAll` instead.
+
+The documented sorting behavior for mixed Numbers and Arrays, that `[ 4 ]` counts as `4` for sorting
+purposes, is a lie. Neither MongoDB nor fauxmongo support this behavior.
 
 
 Limitations
@@ -36,13 +37,13 @@ Limitations
 ###Update Limitations
  * Ignores the `$setOnInsert` operator (because `fauxmongo` only understands updates, not insertion)
  * Does not support the deprecated operator `$pushAll`. Use `$push:{ $each:[ ...` instead.
- * `$currentDate` does not support the Timestamp date format. It just set a `Date` to the path, period.
+ * `$currentDate` does not support the Timestamp date format. It just sets a `Date` to the path, period.
 
 ###Query Limitations
  * Gimme a minute with the logical operators (`$and`, `$or`, `$not`, `$nor`).
  * Does not support Geospatial Indexing.
  * Does not support text search.
- * `$where` only accepts Function instances that address the document as `this`.
+ * Does not support `$where`.
 
 
 Tests
@@ -58,10 +59,6 @@ using it in production.
 ```shell
 $ npm test
 ```
-
-###Current test coverage
- * **queries** - 5%
- * **updates** - 100%
 
 
 LICENSE

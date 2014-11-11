@@ -1,7 +1,7 @@
 {
   "name": "fauxmongo",
   "version": "0.0.1",
-  "description": "Local applicator for MongoDB Update operations.",
+  "description": "Local applicator for MongoDB update operations.",
   "keywords": [
     "mongodb",
     "local",
