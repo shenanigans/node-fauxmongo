@@ -19,33 +19,6 @@ var queryMatchesDoc = fauxmongo.matchQuery (aDocument, aQuery);
 ```
 
 
-Notes
------
-$bit uses the upsert behavior added in MongoDB version 2.5.3. If you're curious, MongoDB **does**
-permit the use of up to three bitwise operands sequentially. In both MongoDB and `fauxmongo`, they
-will be executed in document order.
-
-Contrary to the MongoDB documentation, `$pull` **never** performs exact matches on Objects. Use
-`$pullAll` instead.
-
-The documented sorting behavior for mixed Numbers and Arrays, that `[ 4 ]` counts as `4` for sorting
-purposes, is a lie. Neither MongoDB nor fauxmongo support this behavior.
-
-
-Limitations
------------
-###Update Limitations
- * Ignores the `$setOnInsert` operator (because `fauxmongo` only understands updates, not insertion)
- * Does not support the deprecated operator `$pushAll`. Use `$push:{ $each:[ ...` instead.
- * `$currentDate` does not support the Timestamp date format. It just sets a `Date` to the path, period.
-
-###Query Limitations
- * Gimme a minute with the logical operators (`$and`, `$or`, `$not`, `$nor`).
- * Does not support Geospatial Indexing.
- * Does not support text search.
- * Does not support `$where`.
-
-
 Tests
 -----
 The tests require a MongoDB instance to be accessible at the default host - `127.0.0.1:27017`. The
@@ -59,6 +32,52 @@ using it in production.
 ```shell
 $ npm test
 ```
+
+
+Notes
+-----
+Imagine you have the rather confusing document `{ foo:[ { 1:"bar" }, "bar" ] }`. What is projected
+if you call `find ({ "foo.1":"bar" }, { "foo.$":1 })`? The answer is `"bar"` but the question itself
+has a huge implication. If you permit an Array to get nontrivially long and plan to query among its
+members, you must **always** query on an indexed field and **never** use a numeric index in the
+query document. If your query fails to select, your seemingly safe Number index is converted to a
+String and the entire Array will be searched for an Object with a property of that name. To state
+the problem in code, `{ "arr.21.score":{ $gt:0.5 }}` may instead perform the query
+`{ arr:{ $elemMatch:{ "21.score":{ $gt:0.5 }}}}`.
+
+Furthermore, note that `fauxmongo` has no choice but to scan for queries involving Arrays.
+
+`$bit` uses the upsert behavior added in MongoDB version 2.5.3. If you're curious, MongoDB **does**
+permit the use of up to three bitwise operands sequentially. In both MongoDB and `fauxmongo`, they
+will be executed in document order.
+
+
+Contrary to the MongoDB documentation, `$pull` **never** performs exact matches on Objects. Use
+`$pullAll` instead.
+
+The documented sorting behavior for mixed Numbers and Arrays, specifically that `[ 4 ]` and  `4` are
+equal for purposes of `$sort`, is a lie. Neither MongoDB nor `fauxmongo` support this behavior.
+
+
+Usage
+-----
+```
+var fauxmongo = require ('fauxmongo');
+
+```
+
+
+Limitations
+-----------
+###Update Limitations
+ * Ignores the `$setOnInsert` operator (because `fauxmongo` only understands updates, not insertion)
+ * Does not support the deprecated operator `$pushAll`. Use `$push:{ $each:[ ...` instead.
+ * `$currentDate` does not support the Timestamp date format. It just sets a `Date` to the path, period.
+
+###Query Limitations
+ * Does not support Geospatial Indexing.
+ * Does not support text search.
+ * Does not support `$where`.
 
 
 LICENSE

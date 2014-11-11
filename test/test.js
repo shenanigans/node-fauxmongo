@@ -96,6 +96,13 @@ describe ("queries", function(){
                 done
             );
         });
+        it ("excludes by a single shallow path", function (done) {
+            testQuery (
+                { able:9, baker:'this', charlie:'that' },
+                { able:'this', baker:'this' },
+                done
+            );
+        });
         it ("selects by a single deep path", function (done) {
             testQuery (
                 { able:9, baker:{ baker:99, able:{ able:72 }}},
@@ -110,17 +117,31 @@ describe ("queries", function(){
                 done
             );
         });
-        it ("excludes by a single shallow path", function (done) {
-            testQuery (
-                { able:9, baker:'this', charlie:'that' },
-                { able:'this', baker:'this' },
-                done
-            );
-        });
         it ("excludes by a single deep path, with valid deep paths", function (done) {
             testQuery (
                 { able:9, baker:{ charlie:{ able:{ able:7 }}, baker:99, able:{ able:72 }}},
                 { 'baker.able.able':72, 'baker.charlie.able.able':"7" },
+                done
+            );
+        });
+        it ("selects by a simple Array member path", function (done) {
+            testQuery (
+                { able:[ { able:4 } ] },
+                { 'able.able':4 },
+                done
+            );
+        });
+        it ("selects by a complex Array member path", function (done) {
+            testQuery (
+                { able:[ { able:[ { able:4 } ] } ] },
+                { 'able.able.able':4 },
+                done
+            );
+        });
+        it ("selects Array elements by Number index", function (done) {
+            testQuery (
+                { able:[ 0, 1, 2, 3, 4 ] },
+                { 'able.2':2 },
                 done
             );
         });
@@ -399,7 +420,45 @@ describe ("queries", function(){
 
         });
         describe ("complex logical operators", function(){
-
+            it ("selects with logical bonanza", function (done) {
+                testQuery (
+                    {
+                        able:   [
+                            { able:0 },
+                            { able:1 },
+                            { able:2 },
+                            { able:4 },
+                            { able:5 },
+                            { able:6 },
+                            { able:7 },
+                            { able:8 },
+                            { able:9 }
+                        ],
+                        baker:      'foobar',
+                        charlie:    42
+                    },
+                    {
+                        $and:   [
+                            { 'able.able':3 },
+                            { 'able.able':{ $gt:5, $lt:11 }},
+                            { 'able.able':{ $mod:[ 7, 2 ] }}
+                        ],
+                        $or:    [
+                            { 'able.able':72 },
+                            { 'able.able':'foo' },
+                            { 'able.baker':'cheese' },
+                            { 'able.able':2 }
+                        ],
+                        $nor:   [
+                            { 'able.able':14 },
+                            { 'able.baker':7 }
+                        ],
+                        baker:      { $not:/\d/ },
+                        charlie:    { $not:{ $gt:9000 }}
+                    },
+                    done
+                );
+            });
         });
     });
 
@@ -886,9 +945,9 @@ describe ("updates", function(){
                         new Buffer ([ 3, 5, 7, 9 ]),
                         new Buffer ([ 0, 1, 1 ]),
                         5,
-                        [ 6 ],
+                        [ 9 ],
                         7,
-                        [ 8 ],
+                        [ 2 ],
                         9
                     ]
                 },
