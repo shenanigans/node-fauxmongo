@@ -59,14 +59,6 @@ The documented sorting behavior for mixed Numbers and Arrays, specifically that 
 equal for purposes of `$sort`, is a lie. Neither MongoDB nor `fauxmongo` support this behavior.
 
 
-Usage
------
-```
-var fauxmongo = require ('fauxmongo');
-
-```
-
-
 Limitations
 -----------
 ###Update Limitations
