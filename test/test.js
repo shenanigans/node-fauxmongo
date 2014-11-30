@@ -1,92 +1,13 @@
 
 var async = require ('async');
+var tools = require ('tools');
 var fauxmongo = require ('../fauxmongo');
-var Mongo = require ('mongodb');
+var assert = require ('assert');
+var testQuery = tools.testQuery;
+var testUpdate = tools.testUpdate;
 
-var typeGetter = ({}).toString;
-try { Buffer; } catch (err) { Buffer = function(){}; }
-function getTypeStr (obj) {
-    var tstr = typeGetter.apply(obj).slice(8,-1).toLowerCase();
-    if (tstr == 'object')
-        if (obj instanceof Buffer) return 'buffer';
-        else return tstr;
-    if (tstr == 'text') return 'textnode';
-    if (tstr == 'comment') return 'commentnode';
-    if (tstr.slice(0,4) == 'html') return 'element';
-    return tstr;
-}
+before (tools.start);
 
-function deepCompare (able, baker) {
-    if (able === baker) return true;
-    var type = getTypeStr (able);
-    if (type != getTypeStr (baker)) return false;
-    if (type == 'object' || type == 'array') {
-        if (Object.keys (able).length != Object.keys (baker).length) return false;
-        for (var key in able)
-            if (!deepCompare (able[key], baker[key])) return false;
-        return true;
-    }
-    return able == baker;
-}
-
-before (function (done) {
-    var dbsrv = new Mongo.Server ('127.0.0.1', 27017);
-    db = new Mongo.Db (
-        'test-fauxmongo',
-        dbsrv,
-        { w:0 }
-    );
-    db.open (function (err) {
-        if (err) {
-            console.log ('could not connect to MongoDB at 127.0.0.1:27017');
-            return process.exit (1);
-        }
-        db.collection ('test-fauxmongo', function (err, col) {
-            if (err) {
-                console.log ('could not connect to MongoDB at 127.0.0.1:27017');
-                return process.exit (1);
-            }
-
-            collection = col;
-            collection.remove ({}, { w:1 }, function (err) {
-                if (err) {
-                    console.log ('could not clear MongoDB test collection');
-                    return process.exit (1);
-                }
-                done();
-            });
-        });
-    });
-});
-
-var nextID = 1;
-function getNextID(){ return 'tempID_'+nextID++; }
-
-// ========================================================================================= queries
-function testQuery (doc, query, callback) {
-    var _id = query._id = doc._id = getNextID();
-    collection.insert (doc, { w:1 }, function (err) {
-        collection.findOne (query, function (err, rec) {
-            collection.remove ({ _id:_id });
-            if (err) return callback (err);
-
-            try {
-                var fauxpinion = fauxmongo.matchQuery (doc, query);
-            } catch (err) {
-                return callback (err);
-            }
-            if (rec && !fauxpinion)
-                return process.nextTick (function(){
-                    callback (new Error ('MongoDB found the document but fauxmongo did not'));
-                });
-            if (!rec && fauxpinion)
-                return process.nextTick (function(){
-                    callback (new Error ('fauxmongo found the document but MongoDB did not'));
-                });
-            callback();
-        });
-    });
-}
 describe ("queries", function(){
     describe ("simple values", function(){
         it ("selects by a single shallow path", function (done) {
@@ -354,7 +275,7 @@ describe ("queries", function(){
         });
     });
     describe ("$size", function(){
-
+        // KEYWORD
     });
     describe ("$all", function(){
         it ("selects with basic values", function (done) {
@@ -465,59 +386,6 @@ describe ("queries", function(){
 });
 
 // ================================================================================= updates
-function testUpdate (query, target, update, callback) {
-    if (!callback) {
-        callback = update;
-        update = target;
-        target = query;
-        query = {};
-    }
-
-    var _id = query._id = target._id = getNextID();
-    collection.insert (target, { w:1 }, function (err) {
-        if (err) return callback (err);
-        try {
-            collection.update (query, update, { w:1 }, function (err) {
-                if (err)
-                    if (!err.code)
-                        return callback (err);
-                    else
-                        // if the driver throws an Error, fauxmongo must throw an Error
-                        try {
-                            fauxmongo.update (query, target, update);
-                            return callback (err);
-                        } catch (err) {
-                            return callback();
-                        }
-                collection.findOne ({ _id:_id }, function (err, rec) {
-                    collection.remove ({ _id:_id });
-                    if (err) return callback (err);
-
-                    fauxmongo.update (query, target, update);
-                    if (deepCompare (target, rec))
-                        return callback();
-                    process.nextTick (function(){
-                        callback (new Error (
-                            'database and fauxmongo did not agree.\n'
-                          + 'fauxmongo\n'
-                          + JSON.stringify (target)
-                          + '\nmongodb\n'
-                          + JSON.stringify (rec)
-                        ));
-                    });
-                });
-            });
-        } catch (err) {
-            // if the driver throws an Error, fauxmongo must throw an Error
-            try {
-                fauxmongo.update (query, target, update);
-                return callback (err);
-            } catch (err) {
-                callback();
-            }
-        }
-    });
-}
 
 
 describe ("updates", function(){
@@ -675,6 +543,9 @@ describe ("updates", function(){
                 testDoc,
                 { $currentDate:{ able:true, baker:true, 'charlie.able':true }}
             );
+            assert (testDoc.able instanceof Date, 'set date to key');
+            assert (testDoc.baker instanceof Date, 'set date to key');
+            assert (testDoc.charlie.able instanceof Date, 'set date to key');
         });
     });
     describe ("$bit", function(){
@@ -977,6 +848,14 @@ describe ("updates", function(){
         it ("performs an update at the position of a complex Array query", function (done) {
             testUpdate (
                 { 'able.able':{ $gt:2 }, 'able.baker':{ $regex:/\d/ } },
+                { able:[ { able:1, baker:'foo' }, { able:5, baker:'123' } ]},
+                { $inc:{ 'able.$.able':5 }},
+                done
+            );
+        });
+        it ("performs an update at the position of an $elemMatch query", function (done) {
+            testUpdate (
+                { able:{ $elemMatch:{ baker:'123' }}},
                 { able:[ { able:1, baker:'foo' }, { able:5, baker:'123' } ]},
                 { $inc:{ 'able.$.able':5 }},
                 done
