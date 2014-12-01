@@ -37,12 +37,12 @@ $ npm test
 Notes
 -----
 Imagine you have the rather confusing document `{ foo:[ { 1:"bar" }, "bar" ] }`. What is projected
-if you call `find ({ "foo.1":"bar" }, { "foo.$":1 })`? The answer is `"bar"` but the question itself
-has a huge implication. If you permit an Array to get nontrivially long and plan to query among its
-members, you must **always** query on an indexed field and **never** use a numeric index in the
-query document. If your query fails to select, your seemingly safe Number index is converted to a
-String and the entire Array will be searched for an Object with a property of that name. To state
-the problem in code, `{ "arr.21.score":{ $gt:0.5 }}` may instead perform the query
+if you call `find ({ "foo.1":"bar" }, { "foo.$":1 })`? The answer is `{ foo:[ "bar" ]}` but the
+question itself has a huge implication. If you permit an Array to get nontrivially long and plan to
+query among its members, you must **always** query on an indexed field and **never** use a numeric
+index in the query document. If your query fails to select, your seemingly safe Number index is
+converted to a String and the entire Array will be searched for an Object with a property of that
+name. To state the problem in code, `{ "arr.21.score":{ $gt:0.5 }}` may instead perform the query
 `{ arr:{ $elemMatch:{ "21.score":{ $gt:0.5 }}}}`.
 
 Furthermore, note that `fauxmongo` has no choice but to scan for queries involving Arrays.
@@ -51,12 +51,27 @@ Furthermore, note that `fauxmongo` has no choice but to scan for queries involvi
 permit the use of up to three bitwise operands sequentially. In both MongoDB and `fauxmongo`, they
 will be executed in document order.
 
-
 Contrary to the MongoDB documentation, `$pull` **never** performs exact matches on Objects. Use
 `$pullAll` instead.
 
 The documented sorting behavior for mixed Numbers and Arrays, specifically that `[ 4 ]` and  `4` are
 equal for purposes of `$sort`, is a lie. Neither MongoDB nor `fauxmongo` support this behavior.
+
+The positional operator is less powerful for projection than it ought to be. The docs stick to what
+is available but do not explicit explain what is not. If you attempt a projection such as
+`{ "foo.$.bar":1 }` MongoDB will return all of `foo.$` instead. The same behavior applies to a
+projection such as `{ "foo.$":{ $slice:[ 5, 5 ]}}`. However, attempting to use `$elemMatch` with
+the positional operator, such as `{ "foo.$":{ $elemMatch:{ $gt:10 }}}` will throw an Error with both
+MongoDB and `fauxmongo`.
+
+There is an additional caveat to query selection when multiple sources exist for a positional
+operator. For example, when searching for the document
+`{ able:[ { able:1, baker:2 }, { able:2, baker:1 } ]}` with the query
+`{ 'able.able':{ $gt:1 }, 'able.baker':{ $gt:1 }}` and projection `{ 'able.$':true }` you will get
+`{ able:[ { able:1, baker:2 }]}` however with the query ``{ 'able.able':{ $gt:1 }, 'able.baker':2 }`
+you will get `{ able:[ { able:2, baker:1 }]}`. Although it is not in the official docs, a query
+document containing operators has a higher priority than a simple value query when locating the
+positional operator.
 
 
 Limitations

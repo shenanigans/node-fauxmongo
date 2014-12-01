@@ -12,5 +12,5 @@ var Project         = require ('./lib/Project');
 
 module.exports.matchQuery = MatchQuery;
 module.exports.update = Update;
-
-
+module.exports.merge = Merge;
+module.exports.project = Project;
