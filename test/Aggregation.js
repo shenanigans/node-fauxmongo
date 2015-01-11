@@ -15,17 +15,26 @@ describe ("#aggregate", function(){
 
     describe ("expressions", function(){
         var context = { CURRENT:{
+            three:      3,
+            five:       5,
+            ten:        10,
+            fifteen:    15,
+            twentyFive: 25,
             able:       42,
+            ABLE:       '42',
             baker:      'forty-two',
             charlie:    {
                 able:       42,
-                baker:      'forty-two'
+                baker:      'Forty-Two'
             },
             dog:        [
                 {
                     able:   9,
                     baker:  1
                 },
+                { able:3 },
+                2,
+                { able:1 },
                 {
                     able:   1,
                     baker:  9
@@ -55,7 +64,9 @@ describe ("#aggregate", function(){
                 [ { able:2 } ]
             ],
             hotel:      [ 0, 0, false, 0, false, 'ham sandwich', false ],
-            indigo:     [ 0, 0, false, 0, false, 0, false ]
+            indigo:     [ 0, 0, false, 0, false, 0, false ],
+            jig:        [ 0, 0, false, 0, false, 0, false ],
+            nillo:      null
         }};
 
         it ("dereferences document paths", function(){
@@ -172,27 +183,110 @@ describe ("#aggregate", function(){
 
             });
 
+            function matchSets (able, baker) {
+                if (able.length != baker.length)
+                    return false;
+                for (var i in able) {
+                    var found = false;
+                    for (var j in baker)
+                        if (fauxmongo.matchQuery.matchLeaves (able[i], baker[j])) {
+                            found = true;
+                            break;
+                        }
+                    if (!found)
+                        return false;
+                }
+                return true;
+            }
+
             describe ("$setDifference", function(){
+
+                it ("removes one set from another", function(){
+                    assert (
+                        matchSets (
+                            evaluate ({ $setDifference:[ '$easy', '$george' ] }, context),
+                            [ 3, 5 ]
+                        ),
+                        'incorrect set selected'
+                    );
+                });
 
             });
 
             describe ("$setEquals", function(){
 
+                it ("compares two matching sets", function(){
+                    assert.equal (
+                        evaluate ({ $setEquals:[ '$indigo', '$jig' ] }, context),
+                        true,
+                        'incorrect set selected'
+                    );
+                });
+
             });
 
             describe ("$setIntersection", function(){
+
+                it ("intersects multiple sets together", function(){
+                    assert (
+                        matchSets (
+                            evaluate ({ $setIntersection:[ '$dog', '$easy', '$george' ] }, context),
+                            [ { able:3 }, 2 ]
+                        ),
+                        'incorrect set selected'
+                    );
+                });
 
             });
 
             describe ("$setIsSubset", function(){
 
+                it ("confirms that a set is a subset of another", function(){
+                    assert.equal (
+                        evaluate ({ $setIsSubset:[ '$indigo', '$hotel' ] }, context),
+                        true,
+                        'positive case'
+                    );
+                });
+
+                it ("confirms that a set is not a subset of another", function(){
+                    assert.equal (
+                        evaluate ({ $setIsSubset:[ '$hotel', '$indigo' ] }, context),
+                        false,
+                        'negative case'
+                    );
+                });
+
             });
 
             describe ("$setUnion", function(){
 
+                it ("unions multiple sets together", function(){
+                    assert (
+                        matchSets (
+                            evaluate ({ $setUnion:[ '$dog', '$easy', '$george' ] }, context),
+                            [
+                                1, 2, 3, 4, 5,
+                                { able:1 }, { able:2 }, { able:3 }, { able:4 }, { able:5 },
+                                [ { able:1 } ], [ { able:2 } ],
+                                { able:1, baker:9 }, { able:9, baker:1 }
+                            ]
+                        ),
+                        'incorrect set selected'
+                    );
+                });
+
             });
 
             describe ("$size", function(){
+
+                it ("evaluates to the length of an Array", function(){
+                    assert.equal (
+                        evaluate ({ $size:'$easy' }, context),
+                        9,
+                        'Array length'
+                    );
+                });
 
             });
 
@@ -202,17 +296,113 @@ describe ("#aggregate", function(){
 
             describe ("$cmp", function(){
 
+                it ("picks the higher of two values", function(){
+                    assert.equal (
+                        evaluate ({ $cmp:[ '$five', '$ten' ] }, context),
+                        -1,
+                        'picked correctly'
+                    );
+                });
+
+                it ("picks the higher of two mixed-type values", function(){
+                    assert.equal (
+                        evaluate ({ $cmp:[ '$able', '$ABLE' ] }, context),
+                        -1,
+                        'picked correctly'
+                    );
+                });
+
             });
 
             describe ("$eq", function(){
+
+                it ("selects two equal expressions", function(){
+                    assert.equal (
+                        evaluate ({ $eq:[ '$able', '$charlie.able' ] }, context),
+                        true,
+                        'positive case'
+                    );
+                });
+
+                it ("rejects two inequal expressions", function(){
+                    assert.equal (
+                        evaluate ({ $eq:[ '$ABLE', '$charlie.able' ] }, context),
+                        false,
+                        'negative case'
+                    );
+                });
 
             });
 
             describe ("$(g|l)t(e)", function(){
 
+                it ("selects with $gt", function(){
+                    assert.equal (
+                        evaluate ({ $gt:[ '$ten', '$five' ] }, context),
+                        true,
+                        'positive case'
+                    );
+                });
+
+                it ("rejects with $gt", function(){
+                    assert.equal (
+                        evaluate ({ $gt:[ '$ten', '$ten' ] }, context),
+                        false,
+                        'negative case'
+                    );
+                });
+
+                it ("selects with $gte", function(){
+                    assert.equal (
+                        evaluate ({ $gte:[ '$ten', '$ten' ] }, context),
+                        true,
+                        'positive case'
+                    );
+                });
+
+                it ("selects with $lt", function(){
+                    assert.equal (
+                        evaluate ({ $lt:[ '$five', '$ten' ] }, context),
+                        true,
+                        'positive case'
+                    );
+                });
+
+                it ("rejects with $lt", function(){
+                    assert.equal (
+                        evaluate ({ $lt:[ '$ten', '$ten' ] }, context),
+                        false,
+                        'negative case'
+                    );
+                });
+
+                it ("selects with $lte", function(){
+                    assert.equal (
+                        evaluate ({ $lte:[ '$ten', '$ten' ] }, context),
+                        true,
+                        'positive case'
+                    );
+                });
+
             });
 
             describe ("$ne", function(){
+
+                it ("selects two inequal expressions", function(){
+                    assert.equal (
+                        evaluate ({ $cmp:[ '$ABLE', '$charlie.able' ] }, context),
+                        true,
+                        'positive case'
+                    );
+                });
+
+                it ("rejects two equal expressions", function(){
+                    assert.equal (
+                        evaluate ({ $cmp:[ '$able', '$charlie.able' ] }, context),
+                        false,
+                        'negative case'
+                    );
+                });
 
             });
 
@@ -222,21 +412,61 @@ describe ("#aggregate", function(){
 
             describe ("$add", function(){
 
+                it ("adds values", function(){
+                    assert.equal (
+                        evaluate ({ $add:[ '$five', '$three' ] }, context),
+                        8,
+                        'correct value'
+                    )
+                });
+
             });
 
             describe ("$divide", function(){
+
+                it ("divides values", function(){
+                    assert.equal (
+                        evaluate ({ $divide:[ '$fifteen', '$three' ] }, context),
+                        5,
+                        'correct value'
+                    )
+                });
 
             });
 
             describe ("$mod", function(){
 
+                it ("modulates values", function(){
+                    assert.equal (
+                        evaluate ({ $mod:[ '$twentyFive', '$ten' ] }, context),
+                        5,
+                        'correct value'
+                    )
+                });
+
             });
 
             describe ("$multiply", function(){
 
+                it ("multiplies values", function(){
+                    assert.equal (
+                        evaluate ({ $multiply:[ '$five', '$three' ] }, context),
+                        15,
+                        'correct value'
+                    )
+                });
+
             });
 
             describe ("$subtract", function(){
+
+                it ("subtracts values", function(){
+                    assert.equal (
+                        evaluate ({ $subtract:[ '$five', '$three' ] }, context),
+                        2,
+                        'correct value'
+                    )
+                });
 
             });
 
@@ -246,21 +476,69 @@ describe ("#aggregate", function(){
 
             describe ("$concat", function(){
 
+                it ("concats strings", function(){
+                    assert.equal (
+                        evaluate ({ $concat:[ '$baker', '$charlie.baker' ] }, context),
+                        'forty-twoForty-Two',
+                        'correct value'
+                    );
+                });
+
             });
 
             describe ("$strcasecmp", function(){
+
+                it ("compares two strings, ignoring case", function(){
+                    assert.equal (
+                        evaluate ({ $strcasecmp:[ '$baker', '$charlie.baker' ] }, context),
+                        0,
+                        'case insensitivity'
+                    );
+                });
 
             });
 
             describe ("$substr", function(){
 
+                it ("reserves a substring", function(){
+                    assert.equal (
+                        evaluate ({ $substr:[ '$baker', 1, 5 ] }, context),
+                        'orty-',
+                        'substring selection'
+                    );
+                });
+
+                it ("reserves an unterminated substring", function(){
+                    assert.equal (
+                        evaluate ({ $substr:[ '$baker', 6, -5 ] }, context),
+                        'two',
+                        'substring selection'
+                    );
+                });
+
             });
 
             describe ("$toLower", function(){
 
+                it ("converts to lowercase", function(){
+                    assert.equal (
+                        evaluate ({ $toLower:'$charlie.baker' }, context),
+                        'forty-two',
+                        'case'
+                    );
+                });
+
             });
 
             describe ("$toUpper", function(){
+
+                it ("converts to uppercase", function(){
+                    assert.equal (
+                        evaluate ({ $toUpper:'$baker' }, context),
+                        'FORTY-TWO',
+                        'case'
+                    );
+                });
 
             });
 
@@ -268,43 +546,125 @@ describe ("#aggregate", function(){
 
         describe ("date operators", function(){
 
+            var testDate = new Date (1420960891350);
+
             describe ("$dayOfMonth", function(){
+
+                it ('retrieves day of the month from a date', function(){
+                    assert.equal (
+                        evaluate ({ $dayOfMonth:testDate }, context),
+                        10,
+                        'correct day'
+                    );
+                });
 
             });
 
             describe ("$dayOfWeek", function(){
 
+                it ('retrieves day of the week from a date', function(){
+                    assert.equal (
+                        evaluate ({ $dayOfWeek:testDate }, context),
+                        7,
+                        'correct day'
+                    );
+                });
+
             });
 
             describe ("$dayOfYear", function(){
+
+                it ('retrieves day of the month from a date', function(){
+                    assert.equal (
+                        evaluate ({ $dayOfYear:testDate }, context),
+                        10,
+                        'correct day'
+                    );
+                });
 
             });
 
             describe ("$hour", function(){
 
+                it ('retrieves hour from a date', function(){
+                    assert.equal (
+                        evaluate ({ $hour:testDate }, context),
+                        23,
+                        'correct hour'
+                    );
+                });
+
             });
 
             describe ("$millisecond", function(){
+
+                it ('retrieves millisecond from a date', function(){
+                    assert.equal (
+                        evaluate ({ $millisecond:testDate }, context),
+                        350,
+                        'correct milliseconds'
+                    );
+                });
 
             });
 
             describe ("$minute", function(){
 
+                it ('retrieves minute from a date', function(){
+                    assert.equal (
+                        evaluate ({ $minute:testDate }, context),
+                        21,
+                        'correct minutes'
+                    );
+                });
+
             });
 
-            describe ("$minth", function(){
+            describe ("$month", function(){
+
+                it ('retrieves month from a date', function(){
+                    assert.equal (
+                        evaluate ({ $month:testDate }, context),
+                        1,
+                        'correct month'
+                    );
+                });
 
             });
 
             describe ("$second", function(){
 
+                it ('retrieves seconds from a date', function(){
+                    assert.equal (
+                        evaluate ({ $second:testDate }, context),
+                        31,
+                        'correct seconds'
+                    );
+                });
+
             });
 
             describe ("$week", function(){
 
+                it ('retrieves week of year from a date', function(){
+                    assert.equal (
+                        evaluate ({ $week:testDate }, context),
+                        1,
+                        'correct week'
+                    );
+                });
+
             });
 
             describe ("$year", function(){
+
+                it ('retrieves year from a date', function(){
+                    assert.equal (
+                        evaluate ({ $year:testDate }, context),
+                        2015,
+                        'correct year'
+                    );
+                });
 
             });
 
@@ -314,9 +674,73 @@ describe ("#aggregate", function(){
 
             describe ("$cond", function(){
 
+                it ('evaluates to "then" clause, with Array of arguments', function(){
+                    assert.equal (
+                        evaluate ({
+                            $cond:      [ { $gt:[ '$ten', 7 ] }, "then", "else" ]
+                        }, context),
+                        'then',
+                        'correct clause'
+                    );
+                });
+
+                it ('evaluates to "else" clause, with Array of arguments', function(){
+                    assert.equal (
+                        evaluate ({
+                            $cond:      [ { $gt:[ '$ten', 11 ] }, "then", "else" ]
+                        }, context),
+                        'else',
+                        'correct clause'
+                    );
+                });
+
+                it ('evaluates to "then" clause, with argument document', function(){
+                    assert.equal (
+                        evaluate ({
+                            $cond:      {
+                                'if':       { $gt:[ '$ten', 7 ] },
+                                'then':     "then",
+                                'else':     "else"
+                            }
+                        }, context),
+                        'then',
+                        'correct clause'
+                    );
+                });
+
+                it ('evaluates to "else" clause, with argument document', function(){
+                    assert.equal (
+                        evaluate ({
+                            $cond:      {
+                                'if':       { $gt:[ '$ten', 11 ] },
+                                'then':     "then",
+                                'else':     "else"
+                            }
+                        }, context),
+                        'else',
+                        'correct clause'
+                    );
+                });
+
             });
 
             describe ("$ifNull", function(){
+
+                it ("replaces null with an expression", function(){
+                    assert.equal (
+                        evaluate ({ $ifNull:[ '$nillo', '$ten' ] }, context),
+                        10,
+                        'positive case'
+                    );
+                });
+
+                it ("does not replace non-null", function(){
+                    assert.equal (
+                        evaluate ({ $ifNull:[ '$fifteen', '$ten' ] }, context),
+                        15,
+                        'negative case'
+                    );
+                });
 
             });
 
