@@ -286,7 +286,7 @@ describe ("#project", function(){
                     }},
                     { able:7, baker:{
                         able:   'foo'
-                    }},
+                    }}
                 ]
             },
             { able:{ $elemMatch:{ able:{ $gt:4 }}}}, // query

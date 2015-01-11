@@ -1,5 +1,4 @@
 
-
 var async = require ('async');
 var tools = require ('tools');
 var fauxmongo = require ('../fauxmongo');
