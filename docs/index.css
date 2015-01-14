@@ -211,8 +211,8 @@ p {
     margin: 0;
     padding-left: 0.3em;
 }
-.child .signature {
-    font-size: 110%;
+.child > .signature {
+    font-size: 120%;
 }
 .child .child .signature {
     font-size: inherit;
@@ -222,9 +222,25 @@ p {
 }
 .signature .argument {
     display: inline-block;
+    /*margin-left: 2em;*/
+    font-size: 90%;
+}
+.child .argument > .title {
+    font-weight: 300;
+    font-size: 110%
+}
+h1.signature .argument {
+    display: block;
+    margin-left: 1em;
+    font-size: 90%;
 }
 h1.signature {
     margin-top: 0.7em;
+}
+
+.optionBracket {
+    color: #FFC0F7;
+    font-weight: 300;
 }
 
 .star {
@@ -245,7 +261,7 @@ h1.signature {
     line-height: 0.1em;
 }
 /* hide comma after final argument */
-*:first-child > .comma {
+*:first-of-type > .comma {
     display: none;
 }
 
