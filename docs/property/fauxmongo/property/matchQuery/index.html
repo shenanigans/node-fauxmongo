@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>.fauxmongo.matchQuery documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../index.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../highlight.css" />
+    <script type="text/javascript" src="../../../../index.js"></script>
+</head>
+<body class="property" id="component_52">
+    <div id="outer">
+        <div id="header">
+            
+            
+            
+            
+            
+            <a class="ctype" href="../../../../index.html">property</a>
+            <span>
+                <a class="valtype" href="javascript:return false;">Function</a>
+                
+                <span class="valsep">|</span>
+            </span>
+            <span class="breadcrumbs">
+                <span class="delimiter">.</span><a href="../../index.html" class="breadcrumb module">fauxmongo</a><span class="delimiter">.</span><a href="index.html" class="breadcrumb property">matchQuery</a>
+            </span>
+        </div>
+<div id="TOC">
+    <!--<h3>Table of Contents</h3>-->
+            <div class="section">
+                <h4 class="header"><a href="#arguments">Arguments</a></h4>
+                    <a href="#component_40">doc</a><br />
+                    <a href="#component_43">query</a><br />
+                    <a href="#component_46">root</a><br />
+            </div>
+        <div class="section">
+            <h4 class="header"><a href="#functions">Static Functions</a></h4>
+                <a href="#component_37">matchLeaves</a><br />
+                <a href="#component_25">matchSubquery</a><br />
+        </div>
+</div>
+        <div id="content">
+                <h1 class="signature">
+                    matchQuery (
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_40">
+            doc
+        </a>
+    
+</div>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_43">
+            query
+        </a>
+    
+</div>
+<div class="argument">
+    <span class="comma">,</span>
+    [
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">String</a>
+            
+        </span>
+        <a class="title" href="#component_46">
+            root
+        </a>
+    ]
+</div>
+                    ) {
+                </h1>
+            <!-- basic document info -->
+            <div id="details">
+                        <div class="markdown"><p>Determine whether a query selects a given document.</p>
+</div>
+                <div class="clear"></div>
+        </div>
+<div class="children">
+            <h2>Arguments</h2>
+            <div class="section arguments">
+                    <div class="child argument" id="component_40">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="argument/doc/index.html">
+            doc
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The document to be examined.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument" id="component_43">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="argument/query/index.html">
+            query
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The query to test against the document.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument" id="component_46">
+<span class="signature">
+        <div class="flag optional">optional</div>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">String</a>
+            
+        </span>
+        <a class="title" href="argument/root/index.html">
+            root
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>Indicates an offset document position. Permits testing a full query against a subdocument.</p>
+</span>
+                        </div>
+                    </div>
+            </div>
+            <!-- return values -->
+            <h1 class="header">Return Values</h1>
+            <div id="returns" class="section returns">
+<div id="component_49" class="child returns">
+    <span class="signature">
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Boolean</a>
+            
+        </span>
+        
+        <a class="title" href="returns/unnamed_2/index.html"></a>
+    </span>
+    <div class="info">
+<span class="markdown"></span>
+    </div>
+</div>
+            </div>
+        <!-- static functions -->
+        <h1 id="functions" class="header">Static Functions</h1>
+        <div class="section properties">
+<div id="component_37" class="child function">
+    <span class="signature">
+            <span>
+                <span class="valsep">,</span>
+                <span>
+                    <span class="valsep">|</span>
+                    <a class="valtype" href="javascript:return false;">Boolean</a>
+                </span>
+            </span>
+        <a href="property/matchLeaves/index.html" class="title">
+            matchLeaves
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span></span>
+        <a class="title" href="#component_28">
+            able
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span></span>
+        <a class="title" href="#component_31">
+            baker
+        </a>
+    
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Compare two MongoDB documents, lists or leaves for deep equality.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_28">
+<span class="signature">
+    
+        <span></span>
+        <a class="title" href="property/matchLeaves/argument/able/index.html">
+            able
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"></span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_31">
+<span class="signature">
+    
+        <span></span>
+        <a class="title" href="property/matchLeaves/argument/baker/index.html">
+            baker
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"></span>
+                        </div>
+                    </div>
+            </div>
+            <h4>Returns</h4>
+            <div class="section returns">
+                    <div class="return">
+<div id="component_34" class="child returns">
+    <span class="signature">
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Boolean</a>
+            
+        </span>
+        
+        <a class="title" href="property/matchLeaves/returns/unnamed_5/index.html"></a>
+    </span>
+    <div class="info">
+<span class="markdown"></span>
+    </div>
+</div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+<div id="component_25" class="child function">
+    <span class="signature">
+            <span>
+                <span class="valsep">,</span>
+                <span>
+                    <span class="valsep">|</span>
+                    <a class="valtype" href="javascript:return false;">Boolean</a>
+                </span>
+            </span>
+        <a href="property/matchSubquery/index.html" class="title">
+            matchSubquery
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_16">
+            document
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_19">
+            subquery
+        </a>
+    
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Test a partial query against a subdocument. Expects the query specification for a single key,
+e.g. from <code>{ &#39;able.baker&#39;:{ $gt:4 } }</code> the subquery is <code>{ $gt:4 }</code>.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_16">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/matchSubquery/argument/document/index.html">
+            document
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>Subdocument or leaf to test.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_19">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/matchSubquery/argument/subquery/index.html">
+            subquery
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>Query specification for a single key.</p>
+</span>
+                        </div>
+                    </div>
+            </div>
+            <h4>Returns</h4>
+            <div class="section returns">
+                    <div class="return">
+<div id="component_22" class="child returns">
+    <span class="signature">
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Boolean</a>
+            
+        </span>
+        
+        <a class="title" href="property/matchSubquery/returns/unnamed_3/index.html"></a>
+    </span>
+    <div class="info">
+<span class="markdown"></span>
+    </div>
+</div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+        </div>
+</div>
+        </div>
+    </div>
+    <div id="footer">
+        This document was generated with
+        <a href="https://github.com/shenanigans/node-doczar">doczar</a>
+        at <span class="time">8:07pm</span> on <span class="date">Tuesday, January 13, 2015</span>
+    </div>
+</body>
+</html>

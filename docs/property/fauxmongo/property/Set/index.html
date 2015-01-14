@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>.fauxmongo.Set documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../index.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../highlight.css" />
+    <script type="text/javascript" src="../../../../index.js"></script>
+</head>
+<body class="module" id="component_199">
+    <div id="outer">
+        <div id="header">
+            
+            
+            
+            
+            
+            <a class="ctype" href="../../../../index.html">module</a>
+            <span>
+                <a class="valtype" href="javascript:return false;">class</a>
+                
+                <span class="valsep">|</span>
+            </span>
+            <span class="breadcrumbs">
+                <span class="delimiter">.</span><a href="../../index.html" class="breadcrumb module">fauxmongo</a><span class="delimiter">.</span><a href="index.html" class="breadcrumb module">Set</a>
+            </span>
+        </div>
+<div id="TOC">
+    <!--<h3>Table of Contents</h3>-->
+        <div class="section">
+            <h4 class="header"><a href="#methods">Instance Methods</a></h4>
+                <a href="#component_187">add</a><br />
+                <a href="#component_181">contains</a><br />
+                <a href="#component_154">difference</a><br />
+                <a href="#component_172">equals</a><br />
+                <a href="#component_193">export</a><br />
+                <a href="#component_163">intersect</a><br />
+                <a href="#component_148">union</a><br />
+        </div>
+</div>
+        <div id="content">
+            <!-- basic document info -->
+            <div id="details">
+                        <div class="markdown"><p>Collects a set of unique MongoDB documents.</p>
+</div>
+                <div class="clear"></div>
+                <!-- constructor function -->
+                <h1>Constructor</h1>
+                <div id="constructor" class="section constructor">
+                    <h2 class="signature">
+                        Set (
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Array</a>
+            
+        </span>
+        <a class="title" href="#component_196">
+            values
+        </a>
+    
+</div>
+                        ) {
+                    </h2>
+                    <div class="markdown"></div>
+                        <h3>Arguments</h3>
+                        <div class="section arguments">
+                                <div class="child argument" id="component_196">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Array</a>
+            
+        </span>
+        <a class="title" href="argument/values/index.html">
+            values
+        </a>
+    
+</span>
+                                    <div class="info">
+                                        <span class="markdown"></span>
+                                    <div class="tail"></div></div>
+                                </div>
+                        </div>
+                </div>
+        </div>
+<div class="children">
+        <!-- instance methods -->
+        <h1 id="methods" class="header">Instance Methods</h1>
+        <div class="section members">
+<div id="component_187" class="child function">
+    <span class="signature">
+        <a href="member/add/index.html" class="title">
+            add
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span></span>
+        <a class="title" href="#component_184">
+            value
+        </a>
+    
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Add a value to this Set and return whether or not the value was previously unknown.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_184">
+<span class="signature">
+    
+        <span></span>
+        <a class="title" href="member/add/argument/value/index.html">
+            value
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>@returns/Boolean <code>true</code> if the item was added, <code>false</code> if it was already there.</p>
+</span>
+                        </div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+<div id="component_181" class="child function">
+    <span class="signature">
+            <span>
+                <span class="valsep">,</span>
+                <span>
+                    <span class="valsep">|</span>
+                    <a class="valtype" href="javascript:return false;">Boolean</a>
+                </span>
+            </span>
+        <a href="member/contains/index.html" class="title">
+            contains
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">fauxmongo.Set.Set</a>
+            
+        </span>
+        <a class="title" href="#component_175">
+            other
+        </a>
+    
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Determine whether every value in another Set is also contained in this Set.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_175">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">fauxmongo.Set.Set</a>
+            
+        </span>
+        <a class="title" href="member/contains/argument/other/index.html">
+            other
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"></span>
+                        </div>
+                    </div>
+            </div>
+            <h4>Returns</h4>
+            <div class="section returns">
+                    <div class="return">
+<div id="component_178" class="child returns">
+    <span class="signature">
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Boolean</a>
+            
+        </span>
+        
+        <a class="title" href="member/contains/returns/unnamed_9/index.html"></a>
+    </span>
+    <div class="info">
+<span class="markdown"></span>
+    </div>
+</div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+<div id="component_154" class="child function">
+    <span class="signature">
+        <a href="member/difference/index.html" class="title">
+            difference
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">fauxmongo.Set.Set</a>
+            
+        </span>
+        <a class="title" href="#component_151">
+            other
+        </a>
+    
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Remove another Set&#39;s values from this Set.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_151">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">fauxmongo.Set.Set</a>
+            
+        </span>
+        <a class="title" href="member/difference/argument/other/index.html">
+            other
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"></span>
+                        </div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+<div id="component_172" class="child function">
+    <span class="signature">
+            <span>
+                <span class="valsep">,</span>
+                <span>
+                    <span class="valsep">|</span>
+                    <a class="valtype" href="javascript:return false;">Boolean</a>
+                </span>
+            </span>
+        <a href="member/equals/index.html" class="title">
+            equals
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">fauxmongo.Set.Set</a>
+            
+        </span>
+        <a class="title" href="#component_166">
+            other
+        </a>
+    
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Determine whether this Set contains the exact same collection of values as another Set.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_166">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">fauxmongo.Set.Set</a>
+            
+        </span>
+        <a class="title" href="member/equals/argument/other/index.html">
+            other
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"></span>
+                        </div>
+                    </div>
+            </div>
+            <h4>Returns</h4>
+            <div class="section returns">
+                    <div class="return">
+<div id="component_169" class="child returns">
+    <span class="signature">
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Boolean</a>
+            
+        </span>
+        
+        <a class="title" href="member/equals/returns/unnamed_8/index.html"></a>
+    </span>
+    <div class="info">
+<span class="markdown"></span>
+    </div>
+</div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+<div id="component_193" class="child function">
+    <span class="signature">
+            <span>
+                <span class="valsep">,</span>
+                <span>
+                    <span class="valsep">|</span>
+                    <a class="valtype" href="javascript:return false;">Array</a>
+                </span>
+            </span>
+        <a href="member/export/index.html" class="title">
+            export
+        </a>
+        (
+            <span></span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Create an Array of every value stored in this Set.</p>
+</span>
+            <h4>Returns</h4>
+            <div class="section returns">
+                    <div class="return">
+<div id="component_190" class="child returns">
+    <span class="signature">
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Array</a>
+            
+        </span>
+        
+        <a class="title" href="member/export/returns/unnamed_10/index.html"></a>
+    </span>
+    <div class="info">
+<span class="markdown"><p>An Array of unique elements in this Set.</p>
+</span>
+    </div>
+</div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+<div id="component_163" class="child function">
+    <span class="signature">
+            <span>
+                <span class="valsep">,</span>
+                <span>
+                    <span class="valsep">|</span>
+                    <a class="valtype" href="javascript:return false;">fauxmongo.Set.Set</a>
+                </span>
+            </span>
+        <a href="member/intersect/index.html" class="title">
+            intersect
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">fauxmongo.Set.Set</a>
+            
+        </span>
+        <a class="title" href="#component_157">
+            other
+        </a>
+    
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Create a new Set containing only values which appear in both this Set and another Set.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_157">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">fauxmongo.Set.Set</a>
+            
+        </span>
+        <a class="title" href="member/intersect/argument/other/index.html">
+            other
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"></span>
+                        </div>
+                    </div>
+            </div>
+            <h4>Returns</h4>
+            <div class="section returns">
+                    <div class="return">
+<div id="component_160" class="child returns">
+    <span class="signature">
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">fauxmongo.Set.Set</a>
+            
+        </span>
+        
+        <a class="title" href="member/intersect/returns/newSet/index.html">newSet</a>
+    </span>
+    <div class="info">
+<span class="markdown"></span>
+    </div>
+</div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+<div id="component_148" class="child function">
+    <span class="signature">
+        <a href="member/union/index.html" class="title">
+            union
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">fauxmongo.Set.Set</a>
+            
+        </span>
+        <a class="title" href="#component_145">
+            other
+        </a>
+    
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Add another Set&#39;s values to this Set.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_145">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">fauxmongo.Set.Set</a>
+            
+        </span>
+        <a class="title" href="member/union/argument/other/index.html">
+            other
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"></span>
+                        </div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+        </div>
+</div>
+        </div>
+    </div>
+    <div id="footer">
+        This document was generated with
+        <a href="https://github.com/shenanigans/node-doczar">doczar</a>
+        at <span class="time">8:07pm</span> on <span class="date">Tuesday, January 13, 2015</span>
+    </div>
+</body>
+</html>

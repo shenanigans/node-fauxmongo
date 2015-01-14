@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>.fauxmongo~README documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../index.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../highlight.css" />
+    <script type="text/javascript" src="../../../../index.js"></script>
+</head>
+<body class="spare" id="component_1">
+    <div id="outer">
+        <div id="header">
+            
+            
+            
+            
+            
+            <a class="ctype" href="../../../../index.html">spare</a>
+            <span></span>
+            <span class="breadcrumbs">
+                <span class="delimiter">.</span><a href="../../index.html" class="breadcrumb module">fauxmongo</a><span class="delimiter">~</span><a href="index.html" class="breadcrumb spare">README</a>
+            </span>
+        </div>
+        <div id="content">
+            <!-- basic document info -->
+            <div id="details">
+                    <div class="markdown"><p>This is the rendered output of the <code>fauxmongo</code> source documentation.
+<em>View the <a href="https://github.com/shenanigans/node-fauxmongo">source</a> on GitHub!</em></p>
+<h1 id="fauxmongo">fauxmongo</h1>
+<p>Match MongoDB queries, apply updates and test aggregation pipelines on local documents.</p>
+<h2 id="installation-and-use">Installation and Use</h2>
+<pre><code class="lang-shell">$ npm install fauxmongo
+</code></pre>
+<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> fauxmongo = <span class="hljs-built_in">require</span> (<span class="hljs-string">'fauxmongo'</span>);
+fauxmongo.update (<span class="hljs-built_in">document</span>, update);
+fauxmongo.update (query, <span class="hljs-built_in">document</span>, update);
+<span class="hljs-keyword">var</span> queryMatchesDoc = fauxmongo.matchQuery (<span class="hljs-built_in">document</span>, query);
+<span class="hljs-keyword">var</span> aggregatedDocs = fauxmongo.aggregate (docs, pipeline);
+<span class="hljs-comment">// get the result set of each stage in an aggregation pipeline</span>
+<span class="hljs-keyword">var</span> stageOutputs = fauxmongo.aggregate (docs, pipeline, <span class="hljs-literal">true</span>);
+<span class="hljs-comment">// recursively overwrite freshly-queried state to local object</span>
+fauxmongo.merge (update, state, query, projection);
+</code></pre>
+<h2 id="tests">Tests</h2>
+<p>The tests require a MongoDB instance to be accessible at the default host - <code>127.0.0.1:27017</code>. The
+db/collection is <code>test-fauxmongo.test-fauxmongo</code> and all records created will be removed before the
+tests finish.</p>
+<p>The test method is &quot;direct comparison&quot; - the same document is transformed by <code>fauxmongo</code> and a real
+database, then compared. This allows you to test <code>fauxmongo</code> with <strong>your</strong> database cluster before
+using it in production.</p>
+<pre><code class="lang-shell">$ npm test
+</code></pre>
+<h2 id="notes">Notes</h2>
+<p>Imagine you have the rather confusing document <code>{ foo:[ { 1:&quot;bar&quot; }, &quot;bar&quot; ] }</code>. What is projected
+if you call <code>find ({ &quot;foo.1&quot;:&quot;bar&quot; }, { &quot;foo.$&quot;:1 })</code>? The answer is <code>{ foo:[ &quot;bar&quot; ]}</code> but the
+question itself has a huge implication. If you permit an Array to get nontrivially long and plan to
+query among its members, you must <strong>always</strong> query on an indexed field and <strong>never</strong> use a numeric
+index in the query document. If your query fails to select, your seemingly safe Number index is
+converted to a String and the entire Array will be searched for an Object with a property of that
+name. To state the problem in code, <code>{ &quot;arr.21.score&quot;:{ $gt:0.5 }}</code> may instead perform the query
+<code>{ arr:{ $elemMatch:{ &quot;21.score&quot;:{ $gt:0.5 }}}}</code>.</p>
+<p>Furthermore, note that <code>fauxmongo</code> has no choice but to scan for queries involving Arrays.</p>
+<p><code>$bit</code> uses the upsert behavior added in MongoDB version 2.5.3. If you&#39;re curious, MongoDB <strong>does</strong>
+permit the use of up to three bitwise operands sequentially. In both MongoDB and <code>fauxmongo</code>, they
+will be executed in document order.</p>
+<p>Contrary to the MongoDB documentation, <code>$pull</code> <strong>never</strong> performs exact matches on Objects. Use
+<code>$pullAll</code> instead.</p>
+<p>The documented sorting behavior for mixed Numbers and Arrays, specifically that <code>[ 4 ]</code> and  <code>4</code> are
+equal for purposes of <code>$sort</code>, is a lie. Neither MongoDB nor <code>fauxmongo</code> support this behavior.</p>
+<p>The positional operator is less powerful for projection than it ought to be. The docs stick to what
+is available but do not explicit explain what is not. If you attempt a projection such as
+<code>{ &quot;foo.$.bar&quot;:1 }</code> MongoDB will return all of <code>foo.$</code> instead. The same behavior applies to a
+projection such as <code>{ &quot;foo.$&quot;:{ $slice:[ 5, 5 ]}}</code>. However, attempting to use <code>$elemMatch</code> with
+the positional operator, such as <code>{ &quot;foo.$&quot;:{ $elemMatch:{ $gt:10 }}}</code> will throw an Error with both
+MongoDB and <code>fauxmongo</code>.</p>
+<p>There is an additional caveat to query selection when multiple sources exist for a positional
+operator. For example, when searching for the document
+<code>{ able:[ { able:1, baker:2 }, { able:2, baker:1 } ]}</code> with the query
+<code>{ &#39;able.able&#39;:{ $gt:1 }, &#39;able.baker&#39;:{ $gt:1 }}</code> and projection <code>{ &#39;able.$&#39;:true }</code> you will get
+<code>{ able:[ { able:1, baker:2 }]}</code> however with the query <code>`{ &#39;able.able&#39;:{ $gt:1 }, &#39;able.baker&#39;:2 }</code>
+you will get <code>{ able:[ { able:2, baker:1 }]}</code>. Although it is not in the official docs, a query
+document containing operators has a higher priority than a simple value query when locating the
+positional operator.</p>
+<h2 id="limitations">Limitations</h2>
+<h3 id="update-limitations">Update Limitations</h3>
+<ul>
+<li>Ignores the <code>$setOnInsert</code> operator (because <code>fauxmongo</code> only understands updates, not insertion)</li>
+<li>Does not support the deprecated operator <code>$pushAll</code>. Use <code>$push:{ $each:[ ...</code> instead.</li>
+<li><code>$currentDate</code> does not support the Timestamp date format. It just sets a <code>Date</code> to the path, period.</li>
+</ul>
+<h3 id="query-limitations">Query Limitations</h3>
+<ul>
+<li>Does not support Geospatial Indexing.</li>
+<li>Does not support text search.</li>
+<li>Does not support <code>$where</code>.</li>
+</ul>
+<h2 id="license">LICENSE</h2>
+<p>The MIT License (MIT)</p>
+<p>Copyright (c) 2014 Kevin &quot;Schmidty&quot; Smith</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</p>
+</div>
+                <div class="clear"></div>
+        </div>
+<div class="children">
+</div>
+        </div>
+    </div>
+    <div id="footer">
+        This document was generated with
+        <a href="https://github.com/shenanigans/node-doczar">doczar</a>
+        at <span class="time">8:07pm</span> on <span class="date">Tuesday, January 13, 2015</span>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>.fauxmongo documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../index.css" />
+    <link rel="stylesheet" type="text/css" href="../../highlight.css" />
+    <script type="text/javascript" src="../../index.js"></script>
+</head>
+<body class="module" id="component_202">
+    <div id="outer">
+        <div id="header">
+            
+            
+            
+            
+            
+            <a class="ctype" href="../../index.html">module</a>
+            <span></span>
+            <span class="breadcrumbs">
+                <span class="delimiter">.</span><a href="index.html" class="breadcrumb module">fauxmongo</a>
+            </span>
+        </div>
+<div id="TOC">
+    <!--<h3>Table of Contents</h3>-->
+        <div class="section">
+            <h4 class="header"><a href="#modules">Modules</a></h4>
+                <a href="#component_142">Sorting</a><br />
+                <a href="#component_199">Set</a><br />
+        </div>
+        <div class="section">
+            <h4 class="header"><a href="#functions">Static Functions</a></h4>
+                <a href="#component_106">aggregate</a><br />
+                <a href="#component_13">getBSONType</a><br />
+                <a href="#component_52">matchQuery</a><br />
+                <a href="#component_79">merge</a><br />
+                <a href="#component_91">project</a><br />
+                <a href="#component_121">resolveDollar</a><br />
+                <a href="#component_64">update</a><br />
+        </div>
+</div>
+        <div id="content">
+            <!-- basic document info -->
+            <div id="details">
+                        <div class="markdown"><p>Match MongoDB queries, apply updates and test aggregation pipelines on local documents.</p>
+</div>
+                <div class="clear"></div>
+                    <!-- extra document info -->
+                    <h1>Additional Documentation Pages</h1>
+                    <div id="spares" class="section spares">
+                            <a class="spare" id="" href="spare/README/index.html">README</a>
+                    </div>
+        </div>
+<div class="children">
+        <!-- modules -->
+        <h1 id="modules" class="header">Modules</h1>
+        <div class="section modules">
+<div id="component_142" class="child module">
+    <span class="signature">
+        <span></span>
+        
+        <a class="title" href="property/Sorting/index.html">Sorting</a>
+    </span>
+    <div class="info">
+<span class="markdown"><p>Generate sorter Functions for ordering documents and leaves.</p>
+</span>
+    </div>
+</div>
+<div id="component_199" class="child module">
+    <span class="signature">
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">class</a>
+            
+        </span>
+        
+        <a class="title" href="property/Set/index.html">Set</a>
+    </span>
+    <div class="info">
+<span class="markdown"><p>Collects a set of unique MongoDB documents.</p>
+</span>
+    </div>
+</div>
+        </div>
+        <!-- static functions -->
+        <h1 id="functions" class="header">Static Functions</h1>
+        <div class="section properties">
+<div id="component_106" class="child function">
+    <span class="signature">
+            <span>
+                <span class="valsep">,</span>
+                <span>
+                    <span class="valsep">|</span>
+                    <a class="valtype" href="javascript:return false;">Array</a>
+                
+                    <span class="valsep">|</span>
+                    <a class="valtype" href="javascript:return false;">Array</a>
+                        [
+                        <span>
+                            <a class="valtype" href="javascript:return false;">Array</a>
+                            <span class="valsep">,</span>
+                        </span>
+                        ]
+                </span>
+            </span>
+        <a href="property/aggregate/index.html" class="title">
+            aggregate
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Array</a>
+            
+                [
+                <span>
+                    <a class="valtype" href="javascript:return false;">Object</a>
+                    <span class="valsep">,</span>
+                </span>
+                ]
+        </span>
+        <a class="title" href="#component_94">
+            docs
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Array</a>
+            
+                [
+                <span>
+                    <a class="valtype" href="javascript:return false;">Object</a>
+                    <span class="valsep">,</span>
+                </span>
+                ]
+        </span>
+        <a class="title" href="#component_97">
+            pipeline
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    [
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Boolean</a>
+            
+        </span>
+        <a class="title" href="#component_100">
+            keepStages
+        </a>
+    ]
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Locally apply a MongoDB aggregation pipeline. Does not affect the input documents. Optionally
+returns the results of each individual stage as well as the final result.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_94">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Array</a>
+            
+                [
+                <span>
+                    <a class="valtype" href="javascript:return false;">Object</a>
+                    <span class="valsep">,</span>
+                </span>
+                ]
+        </span>
+        <a class="title" href="property/aggregate/argument/docs/index.html">
+            docs
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>An Array of documents to process.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_97">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Array</a>
+            
+                [
+                <span>
+                    <a class="valtype" href="javascript:return false;">Object</a>
+                    <span class="valsep">,</span>
+                </span>
+                ]
+        </span>
+        <a class="title" href="property/aggregate/argument/pipeline/index.html">
+            pipeline
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>An Array of stage operator specifications used to select/modify the source documents.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_100">
+<span class="signature">
+        <div class="flag optional">optional</div>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Boolean</a>
+            
+        </span>
+        <a class="title" href="property/aggregate/argument/keepStages/index.html">
+            keepStages
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>If true, the return value is an Array containing each Array of results produced by each stage.
+Otherwise the return value is the final result Array.</p>
+</span>
+                        </div>
+                    </div>
+            </div>
+            <h4>Returns</h4>
+            <div class="section returns">
+                    <div class="return">
+<div id="component_103" class="child returns">
+    <span class="signature">
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Array</a>
+            
+        
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Array</a>
+            
+                [
+                <span>
+                    <a class="valtype" href="javascript:return false;">Array</a>
+                    <span class="valsep">,</span>
+                </span>
+                ]
+        </span>
+        
+        <a class="title" href="property/aggregate/returns/unnamed_4/index.html"></a>
+    </span>
+    <div class="info">
+<span class="markdown"><p>Either the final result set or an Array containing the result set of each stage.</p>
+</span>
+    </div>
+</div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+<div id="component_13" class="child function">
+    <span class="signature">
+            <span>
+                <span class="valsep">,</span>
+                <span>
+                    <span class="valsep">|</span>
+                    <a class="valtype" href="javascript:return false;">Number</a>
+                </span>
+            </span>
+        <a href="property/getBSONType/index.html" class="title">
+            getBSONType
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_4">
+            subject
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    [
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Boolean</a>
+            
+        </span>
+        <a class="title" href="#component_7">
+            simpleNums
+        </a>
+    ]
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Return a numeric BSON type for a javascript object.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_4">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/getBSONType/argument/subject/index.html">
+            subject
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The object to test for type.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_7">
+<span class="signature">
+        <div class="flag optional">optional</div>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Boolean</a>
+            
+        </span>
+        <a class="title" href="property/getBSONType/argument/simpleNums/index.html">
+            simpleNums
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>In simpleNums mode, a Number is always of <code>DOUBLE</code> type. Otherwise it will be evaluated as
+potentially an integer.</p>
+</span>
+                        </div>
+                    </div>
+            </div>
+            <h4>Returns</h4>
+            <div class="section returns">
+                    <div class="return">
+<div id="component_10" class="child returns">
+    <span class="signature">
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Number</a>
+            
+        </span>
+        
+        <a class="title" href="property/getBSONType/returns/unnamed_1/index.html"></a>
+    </span>
+    <div class="info">
+<span class="markdown"><p>Returns one of the following values:</p>
+<ul>
+<li>0 - unknown type</li>
+<li>1 - double</li>
+<li>2 - string</li>
+<li>3 - object</li>
+<li>4 - array</li>
+<li>5 - buffer</li>
+<li>6 - undefined</li>
+<li>7 - ObjectID</li>
+<li>8 - boolean</li>
+<li>9 - date</li>
+<li>10 - null</li>
+<li>11 - regexp</li>
+<li>13 - function</li>
+<li>16 - integer</li>
+<li>18 - long</li>
+</ul>
+</span>
+    </div>
+</div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+<div id="component_52" class="child function">
+    <span class="signature">
+            <span>
+                <span class="valsep">,</span>
+                <span>
+                    <span class="valsep">|</span>
+                    <a class="valtype" href="javascript:return false;">Boolean</a>
+                </span>
+            </span>
+        <a href="property/matchQuery/index.html" class="title">
+            matchQuery
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_40">
+            doc
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_43">
+            query
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    [
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">String</a>
+            
+        </span>
+        <a class="title" href="#component_46">
+            root
+        </a>
+    ]
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Determine whether a query selects a given document.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_40">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/matchQuery/argument/doc/index.html">
+            doc
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The document to be examined.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_43">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/matchQuery/argument/query/index.html">
+            query
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The query to test against the document.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_46">
+<span class="signature">
+        <div class="flag optional">optional</div>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">String</a>
+            
+        </span>
+        <a class="title" href="property/matchQuery/argument/root/index.html">
+            root
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>Indicates an offset document position. Permits testing a full query against a subdocument.</p>
+</span>
+                        </div>
+                    </div>
+            </div>
+            <h4>Returns</h4>
+            <div class="section returns">
+                    <div class="return">
+<div id="component_49" class="child returns">
+    <span class="signature">
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Boolean</a>
+            
+        </span>
+        
+        <a class="title" href="property/matchQuery/returns/unnamed_2/index.html"></a>
+    </span>
+    <div class="info">
+<span class="markdown"></span>
+    </div>
+</div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+<div id="component_79" class="child function">
+    <span class="signature">
+        <a href="property/merge/index.html" class="title">
+            merge
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_67">
+            source
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_70">
+            target
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    [
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_73">
+            query
+        </a>
+    ]
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    [
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_76">
+            projection
+        </a>
+    ]
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Recursively merge the result of a query into a local document, overwriting the document with
+fresh query results. A projection specification may be provided to intelligently merge
+projected fields.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_67">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/merge/argument/source/index.html">
+            source
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>Freshly queried state information.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_70">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/merge/argument/target/index.html">
+            target
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The target document to recursively merge into.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_73">
+<span class="signature">
+        <div class="flag optional">optional</div>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/merge/argument/query/index.html">
+            query
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>If the projection uses the positional operator, the query may be included to define its
+position.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_76">
+<span class="signature">
+        <div class="flag optional">optional</div>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/merge/argument/projection/index.html">
+            projection
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>If a projection is provided, the merge will honor any special projection options.</p>
+</span>
+                        </div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+<div id="component_91" class="child function">
+    <span class="signature">
+        <a href="property/project/index.html" class="title">
+            project
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_82">
+            document
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    [
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_85">
+            query
+        </a>
+    ]
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_88">
+            projection
+        </a>
+    
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Generate a document with another document using a MongoDB projection specification.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_82">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/project/argument/document/index.html">
+            document
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The source document to project.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_85">
+<span class="signature">
+        <div class="flag optional">optional</div>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/project/argument/query/index.html">
+            query
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>If the projection uses the positional operator, provide a query to define it.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_88">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/project/argument/projection/index.html">
+            projection
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The projection specification used to generate a new document.</p>
+</span>
+                        </div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+<div id="component_121" class="child function">
+    <span class="signature">
+        <a href="property/resolveDollar/index.html" class="title">
+            resolveDollar
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_109">
+            target
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_112">
+            query
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Array</a>
+            
+        </span>
+        <a class="title" href="#component_115">
+            path
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">String</a>
+            
+        </span>
+        <a class="title" href="#component_118">
+            pathstr
+        </a>
+    
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Determine the numeric index, if any, of a value matching the positional operator. The prefix
+path where the positional operator was found is required, e.g. <code>comments.$.author</code> uses the path
+<code>comments</code>.</p>
+<p>Both <code>path</code> and <code>pathstr</code> are required (not generated) because if you are calling
+<code>resolveDollar</code> you probably have or need both of these anyway.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_109">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/resolveDollar/argument/target/index.html">
+            target
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The outer document to search. Must have the same root as the <code>path</code> and <code>pathstr</code> arguments.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_112">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/resolveDollar/argument/query/index.html">
+            query
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The query object used to generate the positional operator.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_115">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Array</a>
+            
+        </span>
+        <a class="title" href="property/resolveDollar/argument/path/index.html">
+            path
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The prefix path where the positional operator was found, as an Array of keys.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_118">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">String</a>
+            
+        </span>
+        <a class="title" href="property/resolveDollar/argument/pathstr/index.html">
+            pathstr
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The prefix path where the positional operator was found, as a dot-delimited String.</p>
+</span>
+                        </div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+<div id="component_64" class="child function">
+    <span class="signature">
+        <a href="property/update/index.html" class="title">
+            update
+        </a>
+        (
+            <span>
+<div class="argument">
+    <span class="comma">,</span>
+    [
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_55">
+            query
+        </a>
+    ]
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_58">
+            target
+        </a>
+    
+</div>
+            
+<div class="argument">
+    <span class="comma">,</span>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="#component_61">
+            change
+        </a>
+    
+</div>
+            </span>
+        ) {
+    </span>
+    <div class="info">
+        <span class="markdown"><p>Apply a MongoDB update operation in place.</p>
+</span>
+            <h4>Arguments</h4>
+            <div class="section arguments">
+                    <div class="child argument " id="component_55">
+<span class="signature">
+        <div class="flag optional">optional</div>
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/update/argument/query/index.html">
+            query
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>If the update uses the positional operator, provide a query to define it.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_58">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/update/argument/target/index.html">
+            target
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The document to update. This document will be modified.</p>
+</span>
+                        </div>
+                    </div>
+                    <div class="child argument " id="component_61">
+<span class="signature">
+    
+        <span>
+            <span class="valsep">|</span>
+            <a class="valtype" href="javascript:return false;">Object</a>
+            
+        </span>
+        <a class="title" href="property/update/argument/change/index.html">
+            change
+        </a>
+    
+</span>
+                        <div class="info">
+                            <span class="markdown"><p>The update specification to apply.</p>
+</span>
+                        </div>
+                    </div>
+            </div>
+        <div class="tail" /></div>
+    </div>
+</div>
+        </div>
+</div>
+        </div>
+    </div>
+    <div id="footer">
+        This document was generated with
+        <a href="https://github.com/shenanigans/node-doczar">doczar</a>
+        at <span class="time">8:07pm</span> on <span class="date">Tuesday, January 13, 2015</span>
+    </div>
+</body>
+</html>
