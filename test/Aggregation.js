@@ -1,7 +1,7 @@
 
 var assert = require ('assert');
 var async = require ('async');
-var tools = require ('tools');
+var tools = require ('./common/tools');
 var fauxmongo = require ('../fauxmongo');
 var FauxmongoError = fauxmongo.FauxmongoError;
 var assert = require ('assert');
