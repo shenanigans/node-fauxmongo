@@ -1,9 +1,6 @@
 fauxmongo
 =========
-Apply MongoDB updates to local documents.
-
-Because it was necessary to support the `$` positional operator, the `$sort` keyword, and critically
-the `$pull` operator, query testing is also supported for most of the MongoDB query specification.
+Match MongoDB queries, apply updates and test aggregation pipelines on local documents.
 
 
 Installation and Use
@@ -13,9 +10,14 @@ $ npm install fauxmongo
 ```
 ```javascript
 var fauxmongo = require ('fauxmongo');
-fauxmongo.update (aDocument, anUpdate);
-fauxmongo.update (aQuery, aDocument, anUpdate); // if you need the positional operator
-var queryMatchesDoc = fauxmongo.matchQuery (aDocument, aQuery);
+fauxmongo.update (document, update);
+fauxmongo.update (query, document, update);
+var queryMatchesDoc = fauxmongo.matchQuery (document, query);
+var aggregatedDocs = fauxmongo.aggregate (docs, pipeline);
+// get the result set of each stage in an aggregation pipeline
+var stageOutputs = fauxmongo.aggregate (docs, pipeline, true);
+// recursively overwrite freshly-queried state to local object
+fauxmongo.merge (update, state, query, projection);
 ```
 
 

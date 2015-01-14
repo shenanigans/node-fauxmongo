@@ -1,7 +1,11 @@
 
 /**     @module fauxmongo
-    Applies updates and test queries on local javascript Objects instead of records on a far-away
-    MongoDB instance. Works comfortably in both the Node.js and browser environments.
+    Match MongoDB queries, apply updates and test aggregation pipelines on local documents.
+@spare README
+    This is the rendered output of the `fauxmongo` source documentation.
+    *View the [source](https://github.com/shenanigans/node-fauxmongo) on GitHub!*
+    @load
+        ./README.md
 */
 
 var getBSONType     = require ('./lib/GetBSONType');
