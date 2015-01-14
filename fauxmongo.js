@@ -22,5 +22,5 @@ module.exports.merge = Merge;
 module.exports.project = Project;
 module.exports.aggregate = Aggregate;
 module.exports.FauxmongoError = FauxmongoError;
-module.exports.getBSONType = GetBSONType;
-module.exports.resolveDollar = update.resolveDollar;
+module.exports.getBSONType = getBSONType;
+module.exports.resolveDollar = Update.resolveDollar;
