@@ -204,7 +204,10 @@ p {
 .valsep:last-child {
     display: none;
 }
-
+.punctuation {
+    color: #E837D2;
+    font-weight: 300;
+}
 .signature {
     color: #C813B1;
     font-weight: 700;
@@ -232,14 +235,14 @@ p {
 h1.signature .argument {
     display: block;
     margin-left: 1em;
-    font-size: 90%;
+    font-size: 80%;
 }
 h1.signature {
     margin-top: 0.7em;
 }
 
 .optionBracket {
-    color: #FFC0F7;
+    color: #FA8CEC;
     font-weight: 300;
 }
 
@@ -367,4 +370,8 @@ h1.signature {
     border: none;
     margin-left: -0.5em;
     padding-left: 2em;
+}
+
+h1 .types {
+    font-size: 80%;
 }
