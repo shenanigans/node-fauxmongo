@@ -1,6 +1,6 @@
 {
   "name": "fauxmongo",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Local applicator for MongoDB operations.",
   "keywords": [
     "mongodb",
@@ -16,11 +16,10 @@
   "author": "Kevin \"Schmidty\" Smith",
   "main": "fauxmongo.js",
   "repository": "https://github.com/shenanigans/node-fauxmongo.git",
-  "dependencies": {},
-  "devDependencies": {
-    "mocha": "^2.0.1"
-  },
   "scripts": {
     "test": "./node_modules/.bin/mocha"
+  },
+  "devDependencies": {
+    "mocha": "^2.1.0"
   }
 }
