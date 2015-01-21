@@ -30,14 +30,13 @@ see continued development on `fauxmongo`, please help me [pay my bills!](https:/
 Tests
 -----
 The tests require a MongoDB instance to be accessible at the default host - `127.0.0.1:27017`. The
-db/collection is `test-fauxmongo.test-fauxmongo` and all records created will be removed before the
-tests finish.
-
-The test method is "direct comparison" - the same document is transformed by `fauxmongo` and a real
-database, then compared. This allows you to test `fauxmongo` with **your** database cluster before
-using it in production.
+same document is transformed by `fauxmongo` and a real database, then compared. This allows you to
+test `fauxmongo` with your own database cluster before using it in production.
 
 ```shell
+$ npm install fauxmongo
+$ cd node_modules/fauxmongo
+$ npm install
 $ npm test
 ```
 
